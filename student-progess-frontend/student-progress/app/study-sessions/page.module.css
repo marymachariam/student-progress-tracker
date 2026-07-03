@@ -1,0 +1,62 @@
+.layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.formCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  position: sticky;
+  top: var(--space-4);
+}
+
+.formCard h2 { margin-bottom: var(--space-3); }
+
+.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
+.field label { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); }
+
+.field input, .field select, .field textarea {
+  font-family: var(--font-body);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  font-size: 0.9rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.field input:focus, .field select:focus, .field textarea:focus {
+  outline: none;
+  border-color: var(--moss);
+}
+
+.submitButton {
+  width: 100%;
+  background: var(--moss);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  font-weight: 600;
+  margin-top: var(--space-1);
+}
+.submitButton:hover { background: var(--moss-deep); }
+
+.logList { display: flex; flex-direction: column; }
+
+.logEntry { display: flex; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+
+.logDate { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); width: 90px; flex-shrink: 0; }
+.logBody { flex: 1; }
+.logSubject { font-weight: 600; color: var(--ink); }
+.logHours { font-family: var(--font-mono); color: var(--moss-deep); font-weight: 700; }
+.logNotes { font-size: 0.85rem; color: var(--ink-soft); margin-top: var(--space-1); }
+
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .formCard { position: static; }
+}

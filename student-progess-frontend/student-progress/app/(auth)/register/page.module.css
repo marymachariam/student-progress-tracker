@@ -1,0 +1,55 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--paper);
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-6) var(--space-5);
+  width: 100%;
+  max-width: 380px;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--moss-deep);
+  margin-bottom: var(--space-1);
+}
+
+.subtitle { font-size: 0.85rem; color: var(--ink-soft); margin-bottom: var(--space-5); }
+
+.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
+.field label { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); }
+
+.field input {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  font-size: 0.9rem;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.field input:focus { outline: none; border-color: var(--moss); }
+
+.submitButton {
+  width: 100%;
+  background: var(--moss);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  font-weight: 600;
+  margin-top: var(--space-2);
+}
+.submitButton:hover { background: var(--moss-deep); }
+
+.switchLink { text-align: center; font-size: 0.85rem; color: var(--ink-soft); margin-top: var(--space-4); }
+.switchLink a { color: var(--moss-deep); font-weight: 600; }

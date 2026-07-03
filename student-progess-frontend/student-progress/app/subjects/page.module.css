@@ -1,0 +1,66 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-5);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--moss);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: var(--space-1);
+}
+
+.addButton {
+  background: var(--moss);
+  color: var(--surface);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: var(--space-2) var(--space-4);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.addButton:hover { background: var(--moss-deep); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--space-3);
+}
+
+.specimenCard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  position: relative;
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.specimenCard:hover { border-color: var(--moss); transform: translateY(-2px); }
+
+.colorTag { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-bottom: var(--space-2); }
+
+.subjectName {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: var(--space-1);
+}
+
+.subjectMeta { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+.emptyState { text-align: center; padding: var(--space-6) var(--space-3); color: var(--ink-soft); }
+.emptyState h3 { margin-bottom: var(--space-2); }
+
+.formRow { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap; }
+.formRow input { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-2); font-size: 0.9rem; }

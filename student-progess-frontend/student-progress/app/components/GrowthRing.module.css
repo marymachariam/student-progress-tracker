@@ -1,0 +1,36 @@
+.wrapper { display: flex; align-items: center; gap: var(--space-4); }
+
+.ringTrack { fill: none; stroke: var(--border); stroke-width: 6; }
+
+.ringFill {
+  fill: none;
+  stroke: var(--moss);
+  stroke-width: 6;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 0.6s ease;
+}
+
+.centerLabel { font-family: var(--font-mono); font-size: 1.1rem; font-weight: 700; fill: var(--ink); }
+
+.meta { display: flex; flex-direction: column; gap: var(--space-1); }
+
+.metaTitle { font-family: var(--font-display); font-size: 1rem; font-weight: 600; color: var(--ink); }
+
+.metaFigures { font-family: var(--font-mono); font-size: 0.85rem; color: var(--ink-soft); }
+.metaFigures strong { color: var(--moss-deep); }
+
+.status {
+  display: inline-block;
+  margin-top: var(--space-1);
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+}
+
+.statusOnTrack { color: var(--moss-deep); background: rgba(63, 107, 79, 0.12); }
+.statusBehind { color: var(--clay); background: var(--clay-soft); }

@@ -1,0 +1,78 @@
+.page {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5) var(--space-4);
+  background: var(--paper);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--moss);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-2);
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: var(--space-3);
+}
+
+.tagline {
+  max-width: 440px;
+  width: 100%;
+  font-size: clamp(0.9rem, 2.5vw, 1.05rem);
+  color: var(--ink-soft);
+  margin-bottom: var(--space-5);
+}
+
+.ctaRow {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 320px;
+  justify-content: center;
+}
+
+.primaryButton,
+.secondaryButton {
+  flex: 1;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.primaryButton {
+  background: var(--moss);
+  color: var(--surface);
+  border: none;
+}
+.primaryButton:hover { background: var(--moss-deep); }
+
+.secondaryButton {
+  background: transparent;
+  color: var(--moss-deep);
+  border: 1px solid var(--moss);
+}
+.secondaryButton:hover { background: rgba(63, 107, 79, 0.08); }
+
+@media (max-width: 400px) {
+  .ctaRow {
+    flex-direction: column;
+    max-width: 260px;
+  }
+}
