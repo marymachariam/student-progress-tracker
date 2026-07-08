@@ -57,3 +57,30 @@
   .navLink { border-left: none; border-bottom: 3px solid transparent; white-space: nowrap; }
   .navLinkActive { border-left-color: transparent; border-bottom-color: var(--moss); }
 }
+.userSection {
+  margin-top: auto;
+  padding: var(--space-3) var(--space-4);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.userName {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+
+.logoutButton {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: var(--space-1) var(--space-2);
+  font-size: 0.8rem;
+  color: var(--clay);
+  transition: background 0.15s ease;
+}
+.logoutButton:hover {
+  background: var(--clay-soft);
+}

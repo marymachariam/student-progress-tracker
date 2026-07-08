@@ -4,25 +4,33 @@ import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import StatCard from "../components/StatCard";
 import GrowthRing from "../components/GrowthRing";
+import { getStudent } from "../../lib/auth";
 
 export default function DashboardPage() {
+  const [student, setStudent] = useState(null);
   const [stats, setStats] = useState(null);
   const [goals, setGoals] = useState([]);
   const [alerts, setAlerts] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/dashboard")
+    setStudent(getStudent());
+  }, []);
+
+  useEffect(() => {
+    if (!student) return;
+
+    fetch(`http://localhost:8000/dashboard?student_id=${student.student_id}`)
       .then((res) => res.json())
       .then((data) => setStats(data));
 
-    fetch("http://localhost:8000/dashboard/goal-progress")
+    fetch(`http://localhost:8000/dashboard/goal-progress?student_id=${student.student_id}`)
       .then((res) => res.json())
       .then((data) => setGoals(data.goal_progress || []));
 
-    fetch("http://localhost:8000/dashboard/alerts")
+    fetch(`http://localhost:8000/dashboard/alerts?student_id=${student.student_id}`)
       .then((res) => res.json())
       .then((data) => setAlerts(data.alerts || []));
-  }, []);
+  }, [student]);
 
   return (
     <div>

@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { getStudent, clearStudent } from "../../lib/auth";
 import styles from "./Navbar.module.css";
 
 const LINKS = [
@@ -13,15 +15,25 @@ const LINKS = [
   { href: "/goals", label: "Goals" },
 ];
 
-// pages where the sidebar should NOT show
 const HIDDEN_ON = ["/", "/login", "/register"];
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [student, setStudent] = useState(null);
+
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
 
   if (HIDDEN_ON.includes(pathname)) {
     return null;
   }
+
+  const handleLogout = () => {
+    clearStudent();
+    router.push("/");
+  };
 
   return (
     <nav className={styles.sidebar}>
@@ -42,6 +54,11 @@ export default function Navbar() {
           );
         })}
       </ul>
+
+      <div className={styles.userSection}>
+        <span className={styles.userName}>{student?.name || "Guest"}</span>
+        <button className={styles.logoutButton} onClick={handleLogout}>Log out</button>
+      </div>
     </nav>
   );
 }

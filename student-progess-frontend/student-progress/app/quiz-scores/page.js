@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { getStudent } from "../../lib/auth";
 
 export default function QuizScoresPage() {
+  const [student, setStudent] = useState(null);
   const [scores, setScores] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -17,21 +19,35 @@ export default function QuizScoresPage() {
     quiz_date: "",
   });
 
-  const loadScores = () => {
-    fetch("http://localhost:8000/quiz_scores")
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
+
+  const loadScores = (studentId) => {
+    fetch(`http://localhost:8000/quiz_scores?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setScores(data.quiz_scores || []));
   };
 
-  useEffect(() => {
-    loadScores();
-    fetch("http://localhost:8000/subjects")
+  const loadSubjects = (studentId) => {
+    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setSubjects(data.subjects || []));
-    fetch("http://localhost:8000/topics")
+  };
+
+  const loadTopics = (studentId) => {
+    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setTopics(data.topics || []));
-  }, []);
+  };
+
+  useEffect(() => {
+    if (student) {
+      loadScores(student.student_id);
+      loadSubjects(student.student_id);
+      loadTopics(student.student_id);
+    }
+  }, [student]);
 
   const topicName = (id) => topics.find((t) => t[0] === id)?.[3] || "Unknown";
 
@@ -53,7 +69,7 @@ export default function QuizScoresPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          student_id: 1,
+          student_id: student.student_id,
           subject_id: Number(form.subject_id),
           topic_id: Number(form.topic_id),
           score: Number(form.score),
@@ -71,11 +87,15 @@ export default function QuizScoresPage() {
 
       setStatusMessage(data.message || "Quiz score added");
       setForm({ subject_id: "", topic_id: "", score: "", total_marks: "", quiz_date: "" });
-      loadScores();
+      loadScores(student.student_id);
     } catch (err) {
       setStatusMessage(`Network error: ${err.message}`);
     }
   };
+
+  if (!student) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
@@ -133,30 +153,31 @@ export default function QuizScoresPage() {
       {statusMessage && (
         <p style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>{statusMessage}</p>
       )}
-    <div className={styles.tableWrapper}>
-      <table className={styles.table}>
-        <thead>
-          <tr>
-            <th>Topic</th>
-            <th>Score</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {scores.map((q) => (
-            <tr key={q[0]}>
-              <td>{topicName(q[3])}</td>
-              <td className={`${styles.scoreValue} ${scoreClass(q[4], q[5])}`}>
-                {q[4]}/{q[5]}
-              </td>
-              <td>{q[6]}</td>
+
+      <div className={styles.tableWrapper}>
+        <table className={styles.table}>
+          <thead>
+            <tr>
+              <th>Topic</th>
+              <th>Score</th>
+              <th>Date</th>
             </tr>
-          ))}
-          {scores.length === 0 && (
-            <tr><td colSpan={3}>No quiz scores logged yet.</td></tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {scores.map((q) => (
+              <tr key={q[0]}>
+                <td>{topicName(q[3])}</td>
+                <td className={`${styles.scoreValue} ${scoreClass(q[4], q[5])}`}>
+                  {q[4]}/{q[5]}
+                </td>
+                <td>{q[6]}</td>
+              </tr>
+            ))}
+            {scores.length === 0 && (
+              <tr><td colSpan={3}>No quiz scores logged yet.</td></tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );

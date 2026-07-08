@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { saveStudent } from "../../../lib/auth";
 import styles from "./page.module.css";
 
 export default function RegisterPage() {
@@ -13,12 +14,14 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await fetch("http://localhost:8000/register_student", {
+    const res = await fetch("http://localhost:8000/register_student", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
-    router.push("/login");
+    const data = await res.json();
+    saveStudent({ student_id: data.student_id, name: data.name });
+    router.push("/dashboard");
   };
 
   return (

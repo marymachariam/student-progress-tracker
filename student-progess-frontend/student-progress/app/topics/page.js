@@ -2,26 +2,38 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { getStudent } from "../../lib/auth";
 
 export default function TopicsPage() {
+  const [student, setStudent] = useState(null);
   const [topics, setTopics] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [name, setName] = useState("");
   const [subjectId, setSubjectId] = useState("");
   const [statusMessage, setStatusMessage] = useState("");
 
-  const loadTopics = () => {
-    fetch("http://localhost:8000/topics")
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
+
+  const loadTopics = (studentId) => {
+    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setTopics(data.topics || []));
   };
 
-  useEffect(() => {
-    loadTopics();
-    fetch("http://localhost:8000/subjects")
+  const loadSubjects = (studentId) => {
+    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setSubjects(data.subjects || []));
-  }, []);
+  };
+
+  useEffect(() => {
+    if (student) {
+      loadTopics(student.student_id);
+      loadSubjects(student.student_id);
+    }
+  }, [student]);
 
   const subjectName = (id) => {
     const match = subjects.find((s) => s[0] === id);
@@ -37,7 +49,7 @@ export default function TopicsPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          student_id: 1,
+          student_id: student.student_id,
           subject_id: Number(subjectId),
           name,
         }),
@@ -53,11 +65,15 @@ export default function TopicsPage() {
       setStatusMessage(data.message || "Topic added");
       setName("");
       setSubjectId("");
-      loadTopics();
+      loadTopics(student.student_id);
     } catch (err) {
       setStatusMessage(`Network error: ${err.message}`);
     }
   };
+
+  if (!student) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>

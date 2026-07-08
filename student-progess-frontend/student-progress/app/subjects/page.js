@@ -2,23 +2,31 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { getStudent } from "../../lib/auth";
 
 export default function SubjectsPage() {
+  const [student, setStudent] = useState(null);
   const [subjects, setSubjects] = useState([]);
   const [name, setName] = useState("");
   const [color, setColor] = useState("#3F6B4F");
   const [showForm, setShowForm] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
 
-  const loadSubjects = () => {
-    fetch("http://localhost:8000/subjects")
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
+
+  const loadSubjects = (studentId) => {
+    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setSubjects(data.subjects || []));
   };
 
   useEffect(() => {
-    loadSubjects();
-  }, []);
+    if (student) {
+      loadSubjects(student.student_id);
+    }
+  }, [student]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -28,7 +36,11 @@ export default function SubjectsPage() {
       const res = await fetch("http://localhost:8000/subjects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ student_id: 1, name, color }),
+        body: JSON.stringify({
+          student_id: student.student_id,
+          name,
+          color,
+        }),
       });
 
       const data = await res.json();
@@ -41,11 +53,15 @@ export default function SubjectsPage() {
       setStatusMessage(data.message || "Subject added");
       setName("");
       setShowForm(false);
-      loadSubjects();
+      loadSubjects(student.student_id);
     } catch (err) {
       setStatusMessage(`Network error: ${err.message}`);
     }
   };
+
+  if (!student) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>

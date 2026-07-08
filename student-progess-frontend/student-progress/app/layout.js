@@ -2,7 +2,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 
 export const metadata = {
-  title: "Field Log — Student Progress",
+  title: "Marys Students Log — Student Progress",
   description: "Track study sessions, quiz scores, and goals.",
 };
 

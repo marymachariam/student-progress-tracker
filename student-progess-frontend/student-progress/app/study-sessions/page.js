@@ -2,8 +2,10 @@
 
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
+import { getStudent } from "../../lib/auth";
 
 export default function StudySessionsPage() {
+  const [student, setStudent] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
@@ -17,21 +19,35 @@ export default function StudySessionsPage() {
     notes: "",
   });
 
-  const loadSessions = () => {
-    fetch("http://localhost:8000/study_sessions")
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
+
+  const loadSessions = (studentId) => {
+    fetch(`http://localhost:8000/study_sessions?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setSessions(data.study_sessions || []));
   };
 
-  useEffect(() => {
-    loadSessions();
-    fetch("http://localhost:8000/subjects")
+  const loadSubjects = (studentId) => {
+    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setSubjects(data.subjects || []));
-    fetch("http://localhost:8000/topics")
+  };
+
+  const loadTopics = (studentId) => {
+    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setTopics(data.topics || []));
-  }, []);
+  };
+
+  useEffect(() => {
+    if (student) {
+      loadSessions(student.student_id);
+      loadSubjects(student.student_id);
+      loadTopics(student.student_id);
+    }
+  }, [student]);
 
   const subjectName = (id) => subjects.find((s) => s[0] === id)?.[2] || "Unknown";
 
@@ -41,47 +57,44 @@ export default function StudySessionsPage() {
     e.preventDefault();
     setStatusMessage("Saving...");
 
-    const payload = {
-      student_id: 1,
-      subject_id: Number(form.subject_id),
-      topic_id: Number(form.topic_id),
-      study_date: form.study_date,
-      hours: Number(form.hours),
-      notes: form.notes,
-    };
-
-    console.log("Sending study session payload:", payload);
-
     try {
       const res = await fetch("http://localhost:8000/study_sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          student_id: student.student_id,
+          subject_id: Number(form.subject_id),
+          topic_id: Number(form.topic_id),
+          study_date: form.study_date,
+          hours: Number(form.hours),
+          notes: form.notes,
+        }),
       });
 
-      console.log("Response status:", res.status);
-
       const data = await res.json();
-      console.log("Response body:", data);
 
       if (!res.ok) {
-        setStatusMessage(`Error (${res.status}): ${JSON.stringify(data)}`);
+        setStatusMessage(`Error: ${JSON.stringify(data)}`);
         return;
       }
 
       setStatusMessage(data.message || "Session saved");
       setForm({ subject_id: "", topic_id: "", study_date: "", hours: "", notes: "" });
-      loadSessions();
+      loadSessions(student.student_id);
     } catch (err) {
-      console.error("Fetch threw an error:", err);
       setStatusMessage(`Network error: ${err.message}`);
     }
   };
 
+  if (!student) {
+    return <p>Loading...</p>;
+  }
+
   return (
     <div className={styles.layout}>
       <div className={styles.formCard}>
-        <h2>Log a session</h2><form onSubmit={handleSubmit} className={`${styles.formRow} responsiveFormRow`}>
+        <h2>Log a session</h2>
+        <form onSubmit={handleSubmit}>
           <div className={styles.field}>
             <label>Subject</label>
             <select name="subject_id" value={form.subject_id} onChange={handleChange} required>

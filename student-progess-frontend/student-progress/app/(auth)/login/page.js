@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { saveStudent } from "../../../lib/auth";
 import styles from "./page.module.css";
 
 export default function LoginPage() {
@@ -28,6 +29,7 @@ export default function LoginPage() {
       return;
     }
 
+    saveStudent({ student_id: data.student_id, name: data.name });
     router.push("/dashboard");
   };
 

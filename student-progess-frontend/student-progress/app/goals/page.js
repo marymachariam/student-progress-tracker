@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 import GrowthRing from "../components/GrowthRing";
+import { getStudent } from "../../lib/auth";
 
 export default function GoalsPage() {
+  const [student, setStudent] = useState(null);
   const [goals, setGoals] = useState([]);
   const [progress, setProgress] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
@@ -17,22 +19,28 @@ export default function GoalsPage() {
     end_date: "",
   });
 
-  const loadGoals = () => {
-    fetch("http://localhost:8000/goals")
+  useEffect(() => {
+    setStudent(getStudent());
+  }, []);
+
+  const loadGoals = (studentId) => {
+    fetch(`http://localhost:8000/goals?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setGoals(data.goals || []));
   };
 
-  const loadProgress = () => {
-    fetch("http://localhost:8000/dashboard/goal-progress")
+  const loadProgress = (studentId) => {
+    fetch(`http://localhost:8000/dashboard/goal-progress?student_id=${studentId}`)
       .then((res) => res.json())
       .then((data) => setProgress(data.goal_progress || []));
   };
 
   useEffect(() => {
-    loadGoals();
-    loadProgress();
-  }, []);
+    if (student) {
+      loadGoals(student.student_id);
+      loadProgress(student.student_id);
+    }
+  }, [student]);
 
   const progressFor = (goalId) => progress.find((p) => p.goal_id === goalId);
 
@@ -40,46 +48,42 @@ export default function GoalsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setStatusMessage("Saving...");
-
-    const payload = {
-      student_id: 1,
-      title: form.title,
-      target_type: form.target_type,
-      target_value: Number(form.target_value),
-      start_date: form.start_date,
-      end_date: form.end_date,
-      is_completed: 0,
-    };
-
-    console.log("Sending goal payload:", payload);
+    setStatusMessage("");
 
     try {
       const res = await fetch("http://localhost:8000/goals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          student_id: student.student_id,
+          title: form.title,
+          target_type: form.target_type,
+          target_value: Number(form.target_value),
+          start_date: form.start_date,
+          end_date: form.end_date,
+          is_completed: 0,
+        }),
       });
 
-      console.log("Response status:", res.status);
-
       const data = await res.json();
-      console.log("Response body:", data);
 
       if (!res.ok) {
-        setStatusMessage(`Error (${res.status}): ${JSON.stringify(data)}`);
+        setStatusMessage(`Error: ${JSON.stringify(data)}`);
         return;
       }
 
       setStatusMessage(data.message || "Goal added");
       setForm({ title: "", target_type: "hours", target_value: "", start_date: "", end_date: "" });
-      loadGoals();
-      loadProgress();
+      loadGoals(student.student_id);
+      loadProgress(student.student_id);
     } catch (err) {
-      console.error("Fetch threw an error:", err);
       setStatusMessage(`Network error: ${err.message}`);
     }
   };
+
+  if (!student) {
+    return <p>Loading...</p>;
+  }
 
   return (
     <div>
