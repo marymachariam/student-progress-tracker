@@ -1,0 +1,132 @@
+.split {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.imageSide {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+/* FIXED: Added width and height so the image stretches to fill the container entirely */
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(22, 36, 27, 0.1), rgba(22, 36, 27, 0.45));
+}
+
+.formSide {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+}
+
+.card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.subtitle {
+  color: var(--ink-soft);
+  margin-bottom: var(--space-4);
+  margin-top: var(--space-1);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
+
+.field label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.field input {
+  padding: 0.75rem var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  background: var(--surface);
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--moss);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+}
+
+.errorText {
+  color: var(--clay);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-2);
+}
+
+.submitButton {
+  width: 100%;
+  padding: 0.85rem;
+  min-height: 44px;
+  background: var(--moss);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: var(--space-2);
+}
+
+.submitButton:hover {
+  background: var(--moss-deep);
+}
+
+.switchLink {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-top: var(--space-2);
+}
+
+.switchLink a {
+  color: var(--moss);
+  font-weight: 600;
+}
+
+@media (min-width: 768px) {
+  .split {
+    flex-direction: row;
+  }
+
+  .imageSide {
+    height: auto;
+    width: 40%;
+  }
+
+  .formSide {
+    width: 60%;
+  }
+}

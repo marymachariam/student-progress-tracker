@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --paper: #EEF1EC;
+  --paper-alt: #E4E9E1;
+  --ink: #16241B;
+  --ink-soft: #4B5A50;
+  --surface: #FFFFFF;
+  --border: #C9D2C4;
+  --moss: #3F6B4F;
+  --moss-deep: #2C4D38;
+  --amber: #C98A3B;
+  --amber-soft: #F1DDBC;
+  --clay: #B5533C;
+  --clay-soft: #F2DAD3;
+
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Inter', -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+  --space-5: 2.5rem;
+  --space-6: 4rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --sidebar-width: 220px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: var(--ink);
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.4rem; }
+h3 { font-size: 1.1rem; }
+
+p { line-height: 1.5; color: var(--ink-soft); margin: 0; }
+
+.figure, .mono {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+button { font-family: var(--font-body); cursor: pointer; }
+a { color: inherit; text-decoration: none; }
+input, textarea, select {
+  font-family: var(--font-body);
+  color: var(--ink);
+}
+
+button {
+  font-family: var(--font-body);
+}
+
+:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+}
+
+.app-shell { display: flex; min-height: 100vh; }
+
+.main-content {
+  flex: 1;
+  padding: var(--space-5) var(--space-6);
+  max-width: 1100px;
+}
+
+@media (max-width: 768px) {
+  .app-shell { flex-direction: column; }
+  .main-content { padding: var(--space-4); }
+}
+
+/* add near the top, right after the :root block */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* replace your existing .main-content rule with this */
+.main-content {
+  flex: 1;
+  width: 100%;
+  padding: var(--space-4);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    padding: var(--space-5) var(--space-6);
+  }
+}
+
+/* generic responsive form row — use this class name across all your add-forms */
+.responsiveFormRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.responsiveFormRow > * {
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .responsiveFormRow {
+    flex-direction: column;
+  }
+  .responsiveFormRow > * {
+    width: 100%;
+  }
+}
