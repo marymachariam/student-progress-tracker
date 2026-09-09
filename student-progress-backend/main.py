@@ -55,10 +55,11 @@ app.include_router(admin.router)
 
 
 @app.on_event("startup")
+@app.on_event("startup")
 def on_startup():
-    Base.metadata.create_all(bind=engine)
     logger.info("Application startup complete.")
     start_scheduler()
+    
 @app.on_event("shutdown")
 def on_shutdown():
     stop_scheduler()
