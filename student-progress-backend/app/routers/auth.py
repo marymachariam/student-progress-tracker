@@ -100,6 +100,9 @@ def login(request: Request, data: LoginRequest, db: DBSession):
     if not student.is_verified:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Please verify your email before logging in")
 
+    if not student.is_active:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "This account has been deactivated")
+
     clear_login_attempts(email)
     access_token = create_access_token(data={"sub": str(student.student_id)})
 

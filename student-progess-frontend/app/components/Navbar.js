@@ -16,6 +16,7 @@ const LINKS = [
   { href: "/quiz-scores", label: "Quiz scores", icon: "✓" },
   { href: "/goals", label: "Goals", icon: "◆" },
   { href: "/recommendations", label: "AI recommendations", icon: "✦" },
+  { href: "/profile", label: "Profile", icon: "☺" },
 ];
 
 const HIDDEN_ON = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/verify-otp"];

@@ -16,7 +16,9 @@ async function request(endpoint, options = {}) {
   try {
     res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
   } catch {
-    throw new Error("Can't reach the server. Check your connection and try again.");
+    throw new Error(
+      "Can't reach the server. Check your connection and try again.",
+    );
   }
 
   if (res.status === 401) {
@@ -26,11 +28,15 @@ async function request(endpoint, options = {}) {
   }
 
   if (res.status === 429) {
-    throw new Error("Too many attempts. Please wait a minute before trying again.");
+    throw new Error(
+      "Too many attempts. Please wait a minute before trying again.",
+    );
   }
 
   if (res.status === 500) {
-    throw new Error("Something went wrong on our end. Please try again shortly.");
+    throw new Error(
+      "Something went wrong on our end. Please try again shortly.",
+    );
   }
 
   if (!res.ok) {
@@ -68,6 +74,11 @@ export const api = {
     formData.append("file", file);
     return request("/students/me/picture", { method: "POST", body: formData });
   },
+  updateMe: (data) =>
+    request("/students/me", { method: "PUT", body: JSON.stringify(data) }),
+  deactivateAccount: () =>
+    request("/students/me/deactivate", { method: "POST" }),
+  deleteAccount: () => request("/students/me", { method: "DELETE" }),
 
   getSubjects: () => request("/subjects"),
   createSubject: (data) =>
@@ -120,4 +131,6 @@ export const api = {
   getStudyStreak: () => request("/dashboard/study-streak"),
   getAlerts: () => request("/dashboard/alerts"),
   getRecommendation: () => request("/recommendations"),
+    changePassword: (data) =>
+    request("/students/me/change-password", { method: "POST", body: JSON.stringify(data) }),
 };

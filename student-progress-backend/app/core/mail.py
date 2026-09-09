@@ -120,3 +120,62 @@ async def send_password_reset_email(email: str, reset_link: str) -> None:
 
 async def send_digest_email(email: str, name: str, text_content: str, html_content: str) -> None:
     await _send_email(email, "Your weekly study summary", text_content, html_content)
+
+async def send_password_changed_email(email: str, name: str) -> None:
+    text = (
+        f"Hi {name},\n\n"
+        f"This is a confirmation that your Student Progress Tracker password was just changed.\n\n"
+        f"If you didn't make this change, please reset your password immediately or contact support."
+    )
+
+    body = f"""
+      <div style="font-size:15px;color:#16241B;font-family:Arial,sans-serif;margin-bottom:8px;">
+        Hi {name}, your password was changed.
+      </div>
+      <div style="font-size:14px;color:#4B5A50;font-family:Arial,sans-serif;margin-bottom:24px;">
+        This is a confirmation that your password was just updated. If this wasn't you, reset your password
+        immediately or contact support right away.
+      </div>
+    """
+    html = _email_shell("Password Changed", body)
+    await _send_email(email, "Your Student Progress Tracker password was changed", text, html)
+
+async def send_account_deactivated_email(email: str, name: str) -> None:
+    text = (
+        f"Hi {name},\n\n"
+        f"This is a confirmation that your Student Progress Tracker account has been deactivated.\n\n"
+        f"If you didn't request this, please contact support right away."
+    )
+
+    body = f"""
+      <div style="font-size:15px;color:#16241B;font-family:Arial,sans-serif;margin-bottom:8px;">
+        Hi {name}, your account has been deactivated.
+      </div>
+      <div style="font-size:14px;color:#4B5A50;font-family:Arial,sans-serif;margin-bottom:24px;">
+        This is a confirmation that your account was just deactivated. You won't be able to log in until it's
+        reactivated. If this wasn't you, please contact support immediately.
+      </div>
+    """
+    html = _email_shell("Account Deactivated", body)
+    await _send_email(email, "Your Student Progress Tracker account was deactivated", text, html)
+
+
+async def send_account_deleted_email(email: str, name: str) -> None:
+    text = (
+        f"Hi {name},\n\n"
+        f"This is a confirmation that your Student Progress Tracker account and all associated data "
+        f"have been permanently deleted.\n\n"
+        f"If you didn't request this, please contact support right away."
+    )
+
+    body = f"""
+      <div style="font-size:15px;color:#16241B;font-family:Arial,sans-serif;margin-bottom:8px;">
+        Hi {name}, your account has been deleted.
+      </div>
+      <div style="font-size:14px;color:#4B5A50;font-family:Arial,sans-serif;margin-bottom:24px;">
+        This is a confirmation that your account and all associated data have been permanently deleted.
+        This can't be undone. If this wasn't you, please contact support immediately.
+      </div>
+    """
+    html = _email_shell("Account Deleted", body)
+    await _send_email(email, "Your Student Progress Tracker account was deleted", text, html)

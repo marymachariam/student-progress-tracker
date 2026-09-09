@@ -30,6 +30,21 @@
   --sidebar-width: 220px;
 }
 
+[data-theme="dark"] {
+  --paper: #171C18;
+  --paper-alt: #1D231E;
+  --ink: #EAF0E7;
+  --ink-soft: #A9B6A9;
+  --surface: #212822;
+  --border: #38423A;
+  --moss: #6FA97E;
+  --moss-deep: #8CC49A;
+  --amber: #E0A458;
+  --amber-soft: #3D3122;
+  --clay: #E08668;
+  --clay-soft: #3D2A24;
+}
+
 * { box-sizing: border-box; }
 
 html, body {
