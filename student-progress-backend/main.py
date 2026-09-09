@@ -7,28 +7,33 @@ from slowapi.errors import RateLimitExceeded
 
 from app.core.config import get_settings
 from app.core.logging_config import setup_logging
-from database import Base, engine
 from app.core.limiter import limiter
-from app.routers import (
-    auth, student, subject, topic, study_session,
-    quiz_score, goal, analytics, health, recommendation,
-)
 from app.core.scheduler import start_scheduler, stop_scheduler
-import app.models
-
-from app.routers import admin
-
 from app.routers import (
-    auth, student, subject, topic, study_session,
-    quiz_score, goal, analytics, health,
+    auth,
+    student,
+    subject,
+    topic,
+    study_session,
+    quiz_score,
+    goal,
+    analytics,
+    health,
+    recommendation,
+    admin,
 )
+import app.models  
 
 settings = get_settings()
 
 setup_logging(debug=settings.DEBUG)
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title=settings.APP_NAME, version=settings.APP_VERSION, debug=settings.DEBUG)
+app = FastAPI(
+    title=settings.APP_NAME,
+    version=settings.APP_VERSION,
+    debug=settings.DEBUG,
+)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
@@ -41,6 +46,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Routers
 app.include_router(auth.router)
 app.include_router(student.router)
 app.include_router(subject.router)
@@ -55,15 +61,16 @@ app.include_router(admin.router)
 
 
 @app.on_event("startup")
-@app.on_event("startup")
 def on_startup():
     logger.info("Application startup complete.")
     start_scheduler()
-    
+
+
 @app.on_event("shutdown")
 def on_shutdown():
     stop_scheduler()
-    
+
+
 @app.get("/")
 def home():
     return {"message": f"Welcome to {settings.APP_NAME}"}
