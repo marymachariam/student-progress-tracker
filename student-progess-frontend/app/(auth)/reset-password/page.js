@@ -6,7 +6,6 @@ import Image from "next/image";
 import { api } from "../../../lib/api";
 import styles from "../login/page.module.css";
 
-// 1. This handles the form and the useSearchParams() hook safely inside Suspense
 function ResetPasswordForm() {
   const router = useRouter();
   const params = useSearchParams();
@@ -50,18 +49,29 @@ function ResetPasswordForm() {
                 onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
-              <span className={styles.hint}>8+ characters, with uppercase, lowercase, and a number.</span>
+              <span className={styles.hint}>
+                8+ characters, with uppercase, lowercase, and a number.
+              </span>
             </div>
 
             {error && <p className={styles.errorText}>{error}</p>}
 
-            <button type="submit" className={styles.submitButton}>Reset password</button>
+            <button type="submit" className={styles.submitButton}>
+              Reset password
+            </button>
           </form>
         )}
       </div>
 
       <div className={styles.illustration}>
-        <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
+        <Image
+          src="/image.png"
+          alt=""
+          width={420}
+          height={420}
+          priority
+          className={styles.illustrationImg}
+        />
       </div>
     </div>
   );
@@ -70,13 +80,15 @@ function ResetPasswordForm() {
 export default function ResetPasswordPage() {
   return (
     <div className={styles.page}>
-      <Suspense fallback={
-        <div className={styles.authWrap}>
-          <div className={styles.card}>
-            <p className={styles.subtitle}>Loading reset options...</p>
+      <Suspense
+        fallback={
+          <div className={styles.authWrap}>
+            <div className={styles.card}>
+              <p className={styles.subtitle}>Loading reset options...</p>
+            </div>
           </div>
-        </div>
-      }>
+        }
+      >
         <ResetPasswordForm />
       </Suspense>
     </div>
