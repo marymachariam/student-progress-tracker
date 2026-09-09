@@ -12,7 +12,7 @@
     "axios": "^1.18.1",
     "bootstrap": "^5.3.8",
     "chart.js": "^4.5.1",
-    "next": "16.2.9",
+    "next": "^16.3.4",
     "react": "19.2.4",
     "react-bootstrap": "^2.10.10",
     "react-chartjs-2": "^5.3.1",
@@ -21,7 +21,7 @@
     "recharts": "^3.9.1"
   },
   "devDependencies": {
-    "eslint": "^9",
+    "eslint": "9.39.5",
     "eslint-config-next": "16.2.9"
   }
 }

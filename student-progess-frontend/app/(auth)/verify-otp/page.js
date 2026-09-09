@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { api } from "../../../lib/api";
 import styles from "../login/page.module.css";
 
-export default function VerifyOtpPage() {
+function VerifyOtpForm() {
   const router = useRouter();
   const params = useSearchParams();
   const email = params.get("email") || "";
@@ -37,48 +37,62 @@ export default function VerifyOtpPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.authWrap}>
-        <div className={styles.card}>
-          <div className={styles.cardTop}>
-            <div className={styles.wordmark}>
-              <span className={styles.wordmarkIcon}>◈</span>
-              Field Log<span className={styles.dot}>.</span>
-            </div>
-          </div>
-
-          <h1 className={styles.heading}>Verify email</h1>
-          <p className={styles.subtitle}>Enter the code sent to {email}.</p>
-
-          <form onSubmit={handleSubmit}>
-            <div className={styles.field}>
-              <label>Verification code</label>
-              <input
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                maxLength={6}
-                required
-              />
-            </div>
-
-            {error && <p className={styles.errorText}>{error}</p>}
-            {message && <p className={styles.switchLink}>{message}</p>}
-
-            <button type="submit" className={styles.submitButton}>Verify</button>
-          </form>
-
-          <div className={styles.switchLink}>
-            <button onClick={handleResend} className={styles.inlineLink} style={{ background: "none", border: "none", cursor: "pointer" }}>
-              Resend code
-            </button>
+    <div className={styles.authWrap}>
+      <div className={styles.card}>
+        <div className={styles.cardTop}>
+          <div className={styles.wordmark}>
+            <span className={styles.wordmarkIcon}>◈</span>
+            Field Log<span className={styles.dot}>.</span>
           </div>
         </div>
 
-        <div className={styles.illustration}>
-          <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
+        <h1 className={styles.heading}>Verify email</h1>
+        <p className={styles.subtitle}>Enter the code sent to {email}.</p>
+
+        <form onSubmit={handleSubmit}>
+          <div className={styles.field}>
+            <label>Verification code</label>
+            <input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              maxLength={6}
+              required
+            />
+          </div>
+
+          {error && <p className={styles.errorText}>{error}</p>}
+          {message && <p className={styles.switchLink}>{message}</p>}
+
+          <button type="submit" className={styles.submitButton}>Verify</button>
+        </form>
+
+        <div className={styles.switchLink}>
+          <button onClick={handleResend} className={styles.inlineLink} style={{ background: "none", border: "none", cursor: "pointer" }}>
+            Resend code
+          </button>
         </div>
       </div>
+
+      <div className={styles.illustration}>
+        <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
+      </div>
+    </div>
+  );
+}
+
+export default function VerifyOtpPage() {
+  return (
+    <div className={styles.page}>
+      <Suspense fallback={
+        <div className={styles.authWrap}>
+          <div className={styles.card}>
+            <p className={styles.subtitle}>Loading verification options...</p>
+          </div>
+        </div>
+      }>
+        <VerifyOtpForm />
+      </Suspense>
     </div>
   );
 }
