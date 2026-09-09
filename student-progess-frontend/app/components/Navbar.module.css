@@ -2,32 +2,72 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 240px;
+  width: 260px;
   padding: var(--space-4) var(--space-3);
   border-right: 1px solid var(--border);
   background: var(--surface);
   position: sticky;
   top: 0;
+  overflow-y: auto;
 }
 
 .brand {
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   padding: 0 var(--space-2);
 }
 
 .wordmark {
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--ink);
 }
 
 .tagline {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.8rem;
   color: var(--moss);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   margin-top: 2px;
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-2);
+  margin-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border);
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.userName {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.userEmail {
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uploadError {
+  color: var(--clay);
+  font-size: 0.8rem;
+  padding: 0 var(--space-2);
+  margin: 0 0 var(--space-2) 0;
 }
 
 .navList {
@@ -37,22 +77,28 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
-.navLink {
+.navLink, .logoutRow {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-2);
+  padding: 0.7rem var(--space-2);
   border-radius: var(--radius-sm);
   text-decoration: none;
   color: var(--ink);
-  font-size: 0.9rem;
+  font-size: 1rem;
   transition: background 0.15s ease;
+  width: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
 }
 
-.navLink:hover {
+.navLink:hover, .logoutRow:hover {
   background: var(--clay-soft);
 }
 
@@ -65,102 +111,73 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
+.logoutRow {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+  color: var(--clay);
+}
+
 .navIcon {
-  font-size: 1rem;
-  width: 1.2rem;
+  font-size: 1.15rem;
+  width: 1.4rem;
   text-align: center;
   flex-shrink: 0;
 }
 
 .navLabel {
   flex: 1;
+  font-size: 1rem;
 }
 
 .tabIndex {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   color: var(--moss);
   opacity: 0.6;
 }
 
-.userSection {
-  border-top: 1px solid var(--border);
-  padding-top: var(--space-3);
-  margin-top: var(--space-3);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
+.avatarWrap {
+  position: relative;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  padding: 0 var(--space-1);
+.avatarImg {
+  object-fit: cover;
 }
 
 .avatar {
-  width: 36px;
-  height: 36px;
+  width: 100%;
+  height: 100%;
   border-radius: 50%;
   background: var(--moss);
   color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
+  font-size: 1rem;
   font-weight: 600;
-  flex-shrink: 0;
 }
 
-.userMeta {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.userName {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--ink);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.userEmail {
-  font-size: 0.7rem;
-  color: var(--moss);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.logoutButton {
+.avatarOverlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  width: 100%;
-  padding: var(--space-2);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--ink);
+  justify-content: center;
+  background: rgba(22, 36, 27, 0.55);
+  color: white;
   font-size: 0.85rem;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  opacity: 0;
+  transition: opacity 0.15s ease;
 }
 
-.logoutButton:hover {
-  background: var(--clay-soft);
-  border-color: var(--clay);
+.avatarWrap:hover .avatarOverlay {
+  opacity: 1;
 }
 
-.logoutIcon {
-  font-size: 0.9rem;
-}
-
-/* Mobile top bar + bottom tab bar — hidden on desktop */
 .mobileTopBar,
 .mobileTabBar {
   display: none;
@@ -187,15 +204,17 @@
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    font-size: 0.95rem;
+    font-weight: 600;
   }
 
   .mobileLogoutButton {
     background: transparent;
     border: 1px solid var(--border);
     border-radius: var(--radius-sm);
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
     color: var(--ink);
   }
 
@@ -220,7 +239,7 @@
     padding: var(--space-1);
     text-decoration: none;
     color: var(--ink-soft);
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     min-width: 44px;
   }
 
@@ -229,6 +248,6 @@
   }
 
   .mobileTabIcon {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
   }
 }

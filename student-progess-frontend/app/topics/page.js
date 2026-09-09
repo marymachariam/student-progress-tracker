@@ -1,73 +1,84 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { getStudent } from "../../lib/auth";
+import { api } from "../../lib/api";
+import { getStudent, isLoggedIn } from "../../lib/auth";
 
 export default function TopicsPage() {
+  const router = useRouter();
   const [student, setStudent] = useState(null);
   const [topics, setTopics] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [name, setName] = useState("");
   const [subjectId, setSubjectId] = useState("");
+  const [editingId, setEditingId] = useState(null);
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
+    if (!isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
     setStudent(getStudent());
-  }, []);
+  }, [router]);
 
-  const loadTopics = (studentId) => {
-    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setTopics(data.topics || []));
+  const loadTopics = () => {
+    api.getTopics().then((data) => setTopics(data || [])).catch((err) => setStatusMessage(err.message));
   };
 
-  const loadSubjects = (studentId) => {
-    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setSubjects(data.subjects || []));
+  const loadSubjects = () => {
+    api.getSubjects().then((data) => setSubjects(data || [])).catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
     if (student) {
-      loadTopics(student.student_id);
-      loadSubjects(student.student_id);
+      loadTopics();
+      loadSubjects();
     }
   }, [student]);
 
   const subjectName = (id) => {
-    const match = subjects.find((s) => s[0] === id);
-    return match ? match[2] : "Unknown";
+    const match = subjects.find((s) => s.subject_id === id);
+    return match ? match.name : "Unknown";
+  };
+
+  const resetForm = () => {
+    setName("");
+    setSubjectId("");
+    setEditingId(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage("");
-
     try {
-      const res = await fetch("http://localhost:8000/topics", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_id: student.student_id,
-          subject_id: Number(subjectId),
-          name,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setStatusMessage(`Error: ${JSON.stringify(data)}`);
-        return;
+      if (editingId) {
+        await api.updateTopic(editingId, { name, subject_id: Number(subjectId) });
+      } else {
+        await api.createTopic({ name, subject_id: Number(subjectId) });
       }
-
-      setStatusMessage(data.message || "Topic added");
-      setName("");
-      setSubjectId("");
-      loadTopics(student.student_id);
+      resetForm();
+      loadTopics();
     } catch (err) {
-      setStatusMessage(`Network error: ${err.message}`);
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleEdit = (topic) => {
+    setEditingId(topic.topic_id);
+    setName(topic.name);
+    setSubjectId(String(topic.subject_id));
+  };
+
+  const handleDelete = async (topicId) => {
+    if (!confirm("Delete this topic? This can't be undone.")) return;
+    try {
+      await api.deleteTopic(topicId);
+      loadTopics();
+    } catch (err) {
+      setStatusMessage(`Error: ${err.message}`);
     }
   };
 
@@ -86,7 +97,7 @@ export default function TopicsPage() {
         <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} required>
           <option value="">Select subject</option>
           {subjects.map((s) => (
-            <option key={s[0]} value={s[0]}>{s[2]}</option>
+            <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
           ))}
         </select>
         <input
@@ -96,22 +107,44 @@ export default function TopicsPage() {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        <button type="submit" className={styles.addButton}>Add topic</button>
+        <button type="submit" className={styles.addButton}>
+          {editingId ? "Update topic" : "Add topic"}
+        </button>
+        {editingId && (
+          <button type="button" className={styles.cancelButton} onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </form>
 
-      {statusMessage && (
-        <p style={{ marginTop: "0.5rem", fontSize: "0.85rem" }}>{statusMessage}</p>
-      )}
+      {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
 
-      <div className={styles.list}>
-        {topics.map((t) => (
-          <div key={t[0]} className={styles.row}>
-            <span className={styles.topicName}>{t[3]}</span>
-            <span className={styles.subjectBadge}>{subjectName(t[2])}</span>
-          </div>
-        ))}
-        {topics.length === 0 && <p>No topics added yet.</p>}
-      </div>
+      {topics.length === 0 ? (
+        <div className={styles.emptyState}>
+          <h3>No topics added yet</h3>
+          <p>Add a topic under one of your subjects to start tracking it.</p>
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {topics.map((t) => (
+            <div key={t.topic_id} className={styles.row}>
+              <div className={styles.rowMain}>
+                <span className={styles.topicName}>{t.name}</span>
+                <span className={styles.subjectBadge}>{subjectName(t.subject_id)}</span>
+              </div>
+              <div className={styles.rowActions}>
+                <button className={styles.actionButton} onClick={() => handleEdit(t)}>Edit</button>
+                <button
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => handleDelete(t.topic_id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

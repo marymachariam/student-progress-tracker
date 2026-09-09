@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import GrowthRing from "../components/GrowthRing";
-import { getStudent } from "../../lib/auth";
+import { api } from "../../lib/api";
+import { getStudent, isLoggedIn } from "../../lib/auth";
 
 export default function GoalsPage() {
+  const router = useRouter();
   const [student, setStudent] = useState(null);
   const [goals, setGoals] = useState([]);
-  const [progress, setProgress] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [editingId, setEditingId] = useState(null);
+  const [goalUpdating, setGoalUpdating] = useState(null);
+  const [progressInput, setProgressInput] = useState("");
 
   const [form, setForm] = useState({
     title: "",
@@ -20,64 +24,84 @@ export default function GoalsPage() {
   });
 
   useEffect(() => {
+    if (!isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
     setStudent(getStudent());
-  }, []);
+  }, [router]);
 
-  const loadGoals = (studentId) => {
-    fetch(`http://localhost:8000/goals?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setGoals(data.goals || []));
-  };
-
-  const loadProgress = (studentId) => {
-    fetch(`http://localhost:8000/dashboard/goal-progress?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setProgress(data.goal_progress || []));
+  const loadGoals = () => {
+    api.getGoals().then((data) => setGoals(data || [])).catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
     if (student) {
-      loadGoals(student.student_id);
-      loadProgress(student.student_id);
+      loadGoals();
     }
   }, [student]);
 
-  const progressFor = (goalId) => progress.find((p) => p.goal_id === goalId);
-
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const resetForm = () => {
+    setForm({ title: "", target_type: "hours", target_value: "", start_date: "", end_date: "" });
+    setEditingId(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage("");
 
+    const payload = {
+      title: form.title,
+      target_type: form.target_type,
+      target_value: Number(form.target_value),
+      start_date: form.start_date,
+      end_date: form.end_date,
+    };
+
     try {
-      const res = await fetch("http://localhost:8000/goals", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_id: student.student_id,
-          title: form.title,
-          target_type: form.target_type,
-          target_value: Number(form.target_value),
-          start_date: form.start_date,
-          end_date: form.end_date,
-          is_completed: 0,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setStatusMessage(`Error: ${JSON.stringify(data)}`);
-        return;
+      if (editingId) {
+        await api.updateGoal(editingId, payload);
+      } else {
+        await api.createGoal(payload);
       }
-
-      setStatusMessage(data.message || "Goal added");
-      setForm({ title: "", target_type: "hours", target_value: "", start_date: "", end_date: "" });
-      loadGoals(student.student_id);
-      loadProgress(student.student_id);
+      setStatusMessage(editingId ? "Goal updated" : "Goal added");
+      resetForm();
+      loadGoals();
     } catch (err) {
-      setStatusMessage(`Network error: ${err.message}`);
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleEdit = (g) => {
+    setEditingId(g.goal_id);
+    setForm({
+      title: g.title,
+      target_type: g.target_type,
+      target_value: String(g.target_value),
+      start_date: g.start_date,
+      end_date: g.end_date,
+    });
+  };
+
+  const handleDelete = async (goalId) => {
+    if (!confirm("Delete this goal? This can't be undone.")) return;
+    try {
+      await api.deleteGoal(goalId);
+      loadGoals();
+    } catch (err) {
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleUpdateProgress = async (goalId, value) => {
+    try {
+      await api.updateGoal(goalId, { current_value: Number(value) });
+      setGoalUpdating(null);
+      loadGoals();
+    } catch (err) {
+      setStatusMessage(`Error: ${err.message}`);
     }
   };
 
@@ -104,17 +128,18 @@ export default function GoalsPage() {
 
         <select name="target_type" value={form.target_type} onChange={handleChange}>
           <option value="hours">Hours</option>
+          <option value="topics">Topics</option>
+          <option value="quizzes">Quizzes</option>
+          <option value="sessions">Sessions</option>
         </select>
 
         <input
           type="number"
-          step="0.1"
           name="target_value"
           placeholder="Target"
           value={form.target_value}
           onChange={handleChange}
           required
-          style={{ width: "90px" }}
         />
 
         <input
@@ -124,7 +149,6 @@ export default function GoalsPage() {
           onChange={handleChange}
           required
         />
-
         <input
           type="date"
           name="end_date"
@@ -133,34 +157,71 @@ export default function GoalsPage() {
           required
         />
 
-        <button type="submit" className={styles.addButton}>Add goal</button>
+        <button type="submit" className={styles.addButton}>
+          {editingId ? "Update" : "Add goal"}
+        </button>
+        {editingId && (
+          <button type="button" className={styles.cancelButton} onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </form>
 
-      {statusMessage && (
-        <p style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>{statusMessage}</p>
-      )}
+      {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
 
       {goals.length === 0 ? (
         <div className={styles.emptyState}>
           <h3>No goals set yet</h3>
-          <p>Add a goal to start tracking progress toward it.</p>
+          <p>Add a goal above to start tracking progress toward it.</p>
         </div>
       ) : (
-        <div className={styles.goalGrid}>
-          {goals.map((g) => {
-            const p = progressFor(g[0]);
-            return (
-              <div key={g[0]} className={styles.goalCard}>
-                <GrowthRing
-                  title={g[2]}
-                  percent={p ? p.percent_complete : 0}
-                  actual={p ? p.actual_progress : 0}
-                  target={g[4]}
-                />
-                <div className={styles.goalDates}>{g[5]} → {g[6]}</div>
+        <div className={styles.list}>
+          {goals.map((g) => (
+            <div key={g.goal_id} className={styles.row}>
+              <div className={styles.rowMain}>
+                <div>
+                  <div className={styles.goalTitle}>{g.title}</div>
+                  <div className={styles.goalDates}>{g.start_date} → {g.end_date}</div>
+                </div>
+                <div className={styles.typeBadge}>{g.target_value} {g.target_type}</div>
+                {goalUpdating === g.goal_id ? (
+                  <form
+                    className={styles.progressForm}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleUpdateProgress(g.goal_id, progressInput);
+                    }}
+                  >
+                    <input
+                      type="number"
+                      value={progressInput}
+                      onChange={(e) => setProgressInput(e.target.value)}
+                      placeholder="Current progress"
+                      autoFocus
+                    />
+                    <button type="submit" className={styles.actionButton}>Save</button>
+                    <button type="button" className={styles.actionButton} onClick={() => setGoalUpdating(null)}>Cancel</button>
+                  </form>
+                ) : (
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => { setGoalUpdating(g.goal_id); setProgressInput(""); }}
+                  >
+                    Update progress
+                  </button>
+                )}
               </div>
-            );
-          })}
+              <div className={styles.rowActions}>
+                <button className={styles.actionButton} onClick={() => handleEdit(g)}>Edit</button>
+                <button
+                  className={`${styles.actionButton} ${styles.deleteButton}`}
+                  onClick={() => handleDelete(g.goal_id)}
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

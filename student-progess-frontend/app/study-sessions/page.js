@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { getStudent } from "../../lib/auth";
+import { api } from "../../lib/api";
+import { getStudent, isLoggedIn } from "../../lib/auth";
 
 export default function StudySessionsPage() {
+  const router = useRouter();
   const [student, setStudent] = useState(null);
   const [sessions, setSessions] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     subject_id: "",
@@ -20,69 +24,84 @@ export default function StudySessionsPage() {
   });
 
   useEffect(() => {
+    if (!isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
     setStudent(getStudent());
-  }, []);
+  }, [router]);
 
-  const loadSessions = (studentId) => {
-    fetch(`http://localhost:8000/study_sessions?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setSessions(data.study_sessions || []));
+  const loadSessions = () => {
+    api.getStudySessions().then((data) => setSessions(data || [])).catch((err) => setStatusMessage(err.message));
   };
-
-  const loadSubjects = (studentId) => {
-    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setSubjects(data.subjects || []));
+  const loadSubjects = () => {
+    api.getSubjects().then((data) => setSubjects(data || [])).catch((err) => setStatusMessage(err.message));
   };
-
-  const loadTopics = (studentId) => {
-    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setTopics(data.topics || []));
+  const loadTopics = () => {
+    api.getTopics().then((data) => setTopics(data || [])).catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
     if (student) {
-      loadSessions(student.student_id);
-      loadSubjects(student.student_id);
-      loadTopics(student.student_id);
+      loadSessions();
+      loadSubjects();
+      loadTopics();
     }
   }, [student]);
 
-  const subjectName = (id) => subjects.find((s) => s[0] === id)?.[2] || "Unknown";
+  const subjectName = (id) => subjects.find((s) => s.subject_id === id)?.name || "Unknown";
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+
+  const resetForm = () => {
+    setForm({ subject_id: "", topic_id: "", study_date: "", hours: "", notes: "" });
+    setEditingId(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage("Saving...");
 
+    const payload = {
+      subject_id: Number(form.subject_id),
+      topic_id: Number(form.topic_id),
+      study_date: form.study_date,
+      hours: Number(form.hours),
+      notes: form.notes,
+    };
+
     try {
-      const res = await fetch("http://localhost:8000/study_sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_id: student.student_id,
-          subject_id: Number(form.subject_id),
-          topic_id: Number(form.topic_id),
-          study_date: form.study_date,
-          hours: Number(form.hours),
-          notes: form.notes,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setStatusMessage(`Error: ${JSON.stringify(data)}`);
-        return;
+      if (editingId) {
+        await api.updateStudySession(editingId, payload);
+      } else {
+        await api.createStudySession(payload);
       }
-
-      setStatusMessage(data.message || "Session saved");
-      setForm({ subject_id: "", topic_id: "", study_date: "", hours: "", notes: "" });
-      loadSessions(student.student_id);
+      setStatusMessage(editingId ? "Session updated" : "Session saved");
+      resetForm();
+      loadSessions();
     } catch (err) {
-      setStatusMessage(`Network error: ${err.message}`);
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleEdit = (s) => {
+    setEditingId(s.session_id);
+    setForm({
+      subject_id: String(s.subject_id),
+      topic_id: String(s.topic_id),
+      study_date: s.study_date,
+      hours: String(s.hours),
+      notes: s.notes || "",
+    });
+  };
+
+  const handleDelete = async (sessionId) => {
+    if (!confirm("Delete this session? This can't be undone.")) return;
+    try {
+      await api.deleteStudySession(sessionId);
+      loadSessions();
+    } catch (err) {
+      setStatusMessage(`Error: ${err.message}`);
     }
   };
 
@@ -93,14 +112,14 @@ export default function StudySessionsPage() {
   return (
     <div className={styles.layout}>
       <div className={styles.formCard}>
-        <h2>Log a session</h2>
+        <h2>{editingId ? "Edit session" : "Log a session"}</h2>
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
             <label>Subject</label>
             <select name="subject_id" value={form.subject_id} onChange={handleChange} required>
               <option value="">Select subject</option>
               {subjects.map((s) => (
-                <option key={s[0]} value={s[0]}>{s[2]}</option>
+                <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
               ))}
             </select>
           </div>
@@ -110,9 +129,9 @@ export default function StudySessionsPage() {
             <select name="topic_id" value={form.topic_id} onChange={handleChange} required>
               <option value="">Select topic</option>
               {topics
-                .filter((t) => String(t[2]) === String(form.subject_id))
+                .filter((t) => String(t.subject_id) === String(form.subject_id))
                 .map((t) => (
-                  <option key={t[0]} value={t[0]}>{t[3]}</option>
+                  <option key={t.topic_id} value={t.topic_id}>{t.name}</option>
                 ))}
             </select>
           </div>
@@ -132,32 +151,51 @@ export default function StudySessionsPage() {
             <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} />
           </div>
 
-          <button type="submit" className={styles.submitButton}>Save session</button>
+          <div className={styles.formButtons}>
+            <button type="submit" className={styles.submitButton}>
+              {editingId ? "Update session" : "Save session"}
+            </button>
+            {editingId && (
+              <button type="button" className={styles.cancelButton} onClick={resetForm}>
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
 
-        {statusMessage && (
-          <p style={{ marginTop: "0.5rem", fontSize: "0.85rem" }}>{statusMessage}</p>
-        )}
+        {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
       </div>
 
-      <div>
+      <div className={styles.logSection}>
         <h2>Recent sessions</h2>
-        <div className={styles.logList}>
-          {sessions.map((s) => (
-            <div key={s[0]} className={styles.logEntry}>
-              <span className={styles.logDate}>{s[4]}</span>
-              <div className={styles.logBody}>
-                <div>
-                  <span className={styles.logSubject}>{subjectName(s[2])}</span>
-                  {" — "}
-                  <span className={styles.logHours}>{s[5]}h</span>
+        {sessions.length === 0 ? (
+          <p className={styles.emptyText}>No sessions logged yet.</p>
+        ) : (
+          <div className={styles.logList}>
+            {sessions.map((s) => (
+              <div key={s.session_id} className={styles.logEntry}>
+                <div className={styles.logHeader}>
+                  <span className={styles.logDate}>{s.study_date}</span>
+                  <div className={styles.logActions}>
+                    <button className={styles.actionButton} onClick={() => handleEdit(s)}>Edit</button>
+                    <button
+                      className={`${styles.actionButton} ${styles.deleteButton}`}
+                      onClick={() => handleDelete(s.session_id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-                {s[6] && <div className={styles.logNotes}>{s[6]}</div>}
+                <div className={styles.logBody}>
+                  <span className={styles.logSubject}>{subjectName(s.subject_id)}</span>
+                  {" — "}
+                  <span className={styles.logHours}>{s.hours}h</span>
+                </div>
+                {s.notes && <div className={styles.logNotes}>{s.notes}</div>}
               </div>
-            </div>
-          ))}
-          {sessions.length === 0 && <p>No sessions logged yet.</p>}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

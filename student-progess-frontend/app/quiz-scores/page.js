@@ -1,15 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import styles from "./page.module.css";
-import { getStudent } from "../../lib/auth";
+import { api } from "../../lib/api";
+import { getStudent, isLoggedIn } from "../../lib/auth";
 
 export default function QuizScoresPage() {
+  const router = useRouter();
   const [student, setStudent] = useState(null);
   const [scores, setScores] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [topics, setTopics] = useState([]);
   const [statusMessage, setStatusMessage] = useState("");
+  const [editingId, setEditingId] = useState(null);
 
   const [form, setForm] = useState({
     subject_id: "",
@@ -20,36 +24,33 @@ export default function QuizScoresPage() {
   });
 
   useEffect(() => {
+    if (!isLoggedIn()) {
+      router.push("/login");
+      return;
+    }
     setStudent(getStudent());
-  }, []);
+  }, [router]);
 
-  const loadScores = (studentId) => {
-    fetch(`http://localhost:8000/quiz_scores?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setScores(data.quiz_scores || []));
+  const loadScores = () => {
+    api.getQuizScores().then((data) => setScores(data || [])).catch((err) => setStatusMessage(err.message));
   };
-
-  const loadSubjects = (studentId) => {
-    fetch(`http://localhost:8000/subjects?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setSubjects(data.subjects || []));
+  const loadSubjects = () => {
+    api.getSubjects().then((data) => setSubjects(data || [])).catch((err) => setStatusMessage(err.message));
   };
-
-  const loadTopics = (studentId) => {
-    fetch(`http://localhost:8000/topics?student_id=${studentId}`)
-      .then((res) => res.json())
-      .then((data) => setTopics(data.topics || []));
+  const loadTopics = () => {
+    api.getTopics().then((data) => setTopics(data || [])).catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
     if (student) {
-      loadScores(student.student_id);
-      loadSubjects(student.student_id);
-      loadTopics(student.student_id);
+      loadScores();
+      loadSubjects();
+      loadTopics();
     }
   }, [student]);
 
-  const topicName = (id) => topics.find((t) => t[0] === id)?.[3] || "Unknown";
+  const topicName = (id) => topics.find((t) => t.topic_id === id)?.name || "Unknown";
+  const subjectName = (id) => subjects.find((s) => s.subject_id === id)?.name || "Unknown";
 
   const scoreClass = (score, total) => {
     const pct = (score / total) * 100;
@@ -60,36 +61,55 @@ export default function QuizScoresPage() {
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
+  const resetForm = () => {
+    setForm({ subject_id: "", topic_id: "", score: "", total_marks: "", quiz_date: "" });
+    setEditingId(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setStatusMessage("");
 
+    const payload = {
+      subject_id: Number(form.subject_id),
+      topic_id: Number(form.topic_id),
+      score: Number(form.score),
+      total_marks: Number(form.total_marks),
+      quiz_date: form.quiz_date,
+    };
+
     try {
-      const res = await fetch("http://localhost:8000/quiz_scores", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          student_id: student.student_id,
-          subject_id: Number(form.subject_id),
-          topic_id: Number(form.topic_id),
-          score: Number(form.score),
-          total_marks: Number(form.total_marks),
-          quiz_date: form.quiz_date,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setStatusMessage(`Error: ${JSON.stringify(data)}`);
-        return;
+      if (editingId) {
+        await api.updateQuizScore(editingId, payload);
+      } else {
+        await api.createQuizScore(payload);
       }
-
-      setStatusMessage(data.message || "Quiz score added");
-      setForm({ subject_id: "", topic_id: "", score: "", total_marks: "", quiz_date: "" });
-      loadScores(student.student_id);
+      setStatusMessage(editingId ? "Score updated" : "Quiz score added");
+      resetForm();
+      loadScores();
     } catch (err) {
-      setStatusMessage(`Network error: ${err.message}`);
+      setStatusMessage(`Error: ${err.message}`);
+    }
+  };
+
+  const handleEdit = (q) => {
+    setEditingId(q.score_id);
+    setForm({
+      subject_id: String(q.subject_id),
+      topic_id: String(q.topic_id),
+      score: String(q.score),
+      total_marks: String(q.total_marks),
+      quiz_date: q.quiz_date,
+    });
+  };
+
+  const handleDelete = async (scoreId) => {
+    if (!confirm("Delete this quiz score? This can't be undone.")) return;
+    try {
+      await api.deleteQuizScore(scoreId);
+      loadScores();
+    } catch (err) {
+      setStatusMessage(`Error: ${err.message}`);
     }
   };
 
@@ -104,20 +124,20 @@ export default function QuizScoresPage() {
         <h1>Quiz scores</h1>
       </div>
 
-      <form onSubmit={handleSubmit} className={styles.formRow}>
+      <form onSubmit={handleSubmit} className={styles.formGrid}>
         <select name="subject_id" value={form.subject_id} onChange={handleChange} required>
           <option value="">Select subject</option>
           {subjects.map((s) => (
-            <option key={s[0]} value={s[0]}>{s[2]}</option>
+            <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
           ))}
         </select>
 
         <select name="topic_id" value={form.topic_id} onChange={handleChange} required>
           <option value="">Select topic</option>
           {topics
-            .filter((t) => String(t[2]) === String(form.subject_id))
+            .filter((t) => String(t.subject_id) === String(form.subject_id))
             .map((t) => (
-              <option key={t[0]} value={t[0]}>{t[3]}</option>
+              <option key={t.topic_id} value={t.topic_id}>{t.name}</option>
             ))}
         </select>
 
@@ -128,7 +148,6 @@ export default function QuizScoresPage() {
           value={form.score}
           onChange={handleChange}
           required
-          style={{ width: "90px" }}
         />
         <input
           type="number"
@@ -137,7 +156,6 @@ export default function QuizScoresPage() {
           value={form.total_marks}
           onChange={handleChange}
           required
-          style={{ width: "90px" }}
         />
         <input
           type="date"
@@ -147,38 +165,52 @@ export default function QuizScoresPage() {
           required
         />
 
-        <button type="submit" className={styles.addButton}>Add score</button>
+        <button type="submit" className={styles.addButton}>
+          {editingId ? "Update" : "Add score"}
+        </button>
+        {editingId && (
+          <button type="button" className={styles.cancelButton} onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </form>
 
-      {statusMessage && (
-        <p style={{ marginBottom: "1rem", fontSize: "0.85rem" }}>{statusMessage}</p>
-      )}
+      {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>Topic</th>
-              <th>Score</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {scores.map((q) => (
-              <tr key={q[0]}>
-                <td>{topicName(q[3])}</td>
-                <td className={`${styles.scoreValue} ${scoreClass(q[4], q[5])}`}>
-                  {q[4]}/{q[5]}
-                </td>
-                <td>{q[6]}</td>
-              </tr>
-            ))}
-            {scores.length === 0 && (
-              <tr><td colSpan={3}>No quiz scores logged yet.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      {scores.length === 0 ? (
+        <div className={styles.emptyState}>
+          <h3>No quiz scores logged yet</h3>
+          <p>Add a score above to start tracking your quiz performance.</p>
+        </div>
+      ) : (
+        <div className={styles.scoreList}>
+          {scores.map((q) => (
+            <div key={q.score_id} className={styles.scoreCard}>
+              <div className={styles.scoreMain}>
+                <div>
+                  <div className={styles.scoreTopic}>{topicName(q.topic_id)}</div>
+                  <div className={styles.scoreSubject}>{subjectName(q.subject_id)}</div>
+                </div>
+                <div className={`${styles.scoreValue} ${scoreClass(q.score, q.total_marks)}`}>
+                  {q.score}/{q.total_marks}
+                </div>
+              </div>
+              <div className={styles.scoreFooter}>
+                <span className={styles.scoreDate}>{q.quiz_date}</span>
+                <div className={styles.scoreActions}>
+                  <button className={styles.actionButton} onClick={() => handleEdit(q)}>Edit</button>
+                  <button
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                    onClick={() => handleDelete(q.score_id)}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

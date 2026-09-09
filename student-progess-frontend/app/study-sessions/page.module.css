@@ -1,6 +1,6 @@
 .layout {
   display: grid;
-  grid-template-columns: 320px 1fr;
+  grid-template-columns: 380px 1fr;
   gap: var(--space-5);
   align-items: start;
 }
@@ -10,53 +10,154 @@
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   padding: var(--space-4);
-  position: sticky;
-  top: var(--space-4);
 }
 
-.formCard h2 { margin-bottom: var(--space-3); }
+.formCard h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+}
 
-.field { display: flex; flex-direction: column; gap: var(--space-1); margin-bottom: var(--space-3); }
-.field label { font-size: 0.78rem; font-weight: 600; color: var(--ink-soft); }
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-bottom: var(--space-3);
+}
 
-.field input, .field select, .field textarea {
-  font-family: var(--font-body);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  padding: var(--space-2);
+.field label {
   font-size: 0.9rem;
-  background: var(--paper);
+  font-weight: 600;
   color: var(--ink);
 }
 
-.field input:focus, .field select:focus, .field textarea:focus {
-  outline: none;
-  border-color: var(--moss);
+.field select,
+.field input,
+.field textarea {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem var(--space-3);
+  font-size: 1rem;
+  background: var(--surface);
+  font-family: var(--font-body);
+}
+
+.formButtons {
+  display: flex;
+  gap: var(--space-2);
 }
 
 .submitButton {
-  width: 100%;
+  flex: 1;
   background: var(--moss);
   color: var(--surface);
   border: none;
   border-radius: var(--radius-sm);
-  padding: var(--space-2);
+  padding: 0.85rem;
+  font-size: 1rem;
   font-weight: 600;
-  margin-top: var(--space-1);
+  min-height: 48px;
 }
+
 .submitButton:hover { background: var(--moss-deep); }
 
-.logList { display: flex; flex-direction: column; }
+.cancelButton {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.85rem var(--space-4);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ink-soft);
+  min-height: 48px;
+}
 
-.logEntry { display: flex; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+.statusMessage {
+  margin-top: var(--space-2);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
 
-.logDate { font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-soft); width: 90px; flex-shrink: 0; }
-.logBody { flex: 1; }
-.logSubject { font-weight: 600; color: var(--ink); }
-.logHours { font-family: var(--font-mono); color: var(--moss-deep); font-weight: 700; }
-.logNotes { font-size: 0.85rem; color: var(--ink-soft); margin-top: var(--space-1); }
+.logSection h2 {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-3);
+}
 
-@media (max-width: 768px) {
-  .layout { grid-template-columns: 1fr; }
-  .formCard { position: static; }
+.emptyText {
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+.logList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.logEntry {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+}
+
+.logHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.logDate {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--moss);
+}
+
+.logActions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.actionButton {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem var(--space-2);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.actionButton:hover { background: var(--clay-soft); }
+
+.deleteButton {
+  color: var(--clay);
+  border-color: var(--clay);
+}
+
+.logBody {
+  font-size: 1.1rem;
+  color: var(--ink);
+}
+
+.logSubject {
+  font-weight: 600;
+  font-family: var(--font-display);
+}
+
+.logHours {
+  font-family: var(--font-mono);
+  color: var(--moss);
+}
+
+.logNotes {
+  margin-top: var(--space-1);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
 }

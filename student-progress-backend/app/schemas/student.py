@@ -25,7 +25,7 @@ class StudentUpdate(BaseModel):
 class StudentResponse(StudentBase):
     student_id: int
     created_at: datetime
-
+    profile_picture_url: str | None = None
     model_config = ConfigDict(from_attributes=True)
 
 

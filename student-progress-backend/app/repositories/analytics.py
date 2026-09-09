@@ -89,11 +89,41 @@ def get_goal_by_id(db: Session, goal_id: int, student_id: int) -> Goal | None:
     ).first()
 
 
-def get_hours_since(db: Session, student_id: int, since: datetime.date) -> float:
-    total = db.query(func.sum(StudySession.hours)).filter(
+def get_hours_since(db: Session, student_id: int, since: datetime.date, until: datetime.date | None = None) -> float:
+    query = db.query(func.sum(StudySession.hours)).filter(
         StudySession.student_id == student_id, StudySession.study_date >= since
-    ).scalar()
+    )
+    if until:
+        query = query.filter(StudySession.study_date <= until)
+    total = query.scalar()
     return total or 0
+
+
+def get_sessions_count(db: Session, student_id: int, since: datetime.date, until: datetime.date | None = None) -> int:
+    query = db.query(func.count(StudySession.session_id)).filter(
+        StudySession.student_id == student_id, StudySession.study_date >= since
+    )
+    if until:
+        query = query.filter(StudySession.study_date <= until)
+    return query.scalar() or 0
+
+
+def get_topics_count(db: Session, student_id: int, since: datetime.date, until: datetime.date | None = None) -> int:
+    query = db.query(func.count(func.distinct(StudySession.topic_id))).filter(
+        StudySession.student_id == student_id, StudySession.study_date >= since
+    )
+    if until:
+        query = query.filter(StudySession.study_date <= until)
+    return query.scalar() or 0
+
+
+def get_quizzes_count(db: Session, student_id: int, since: datetime.date, until: datetime.date | None = None) -> int:
+    query = db.query(func.count(QuizScore.score_id)).filter(
+        QuizScore.student_id == student_id, QuizScore.quiz_date >= since
+    )
+    if until:
+        query = query.filter(QuizScore.quiz_date <= until)
+    return query.scalar() or 0
 
 
 def get_distinct_study_dates(db: Session, student_id: int) -> list[datetime.date]:

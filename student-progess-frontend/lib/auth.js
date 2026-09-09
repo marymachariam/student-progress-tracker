@@ -26,3 +26,10 @@ export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(STUDENT_KEY);
 }
+
+export function updateStoredStudent(partial) {
+  const current = getStudent() || {};
+  const updated = { ...current, ...partial };
+  localStorage.setItem(STUDENT_KEY, JSON.stringify(updated));
+  return updated;
+}

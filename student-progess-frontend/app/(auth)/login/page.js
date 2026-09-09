@@ -31,16 +31,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className={styles.split}>
-      <div className={styles.imageSide}>
-        <Image src="/image.png" alt="" fill priority className={styles.image} />
-        <div className={styles.imageOverlay} />
-      </div>
-
-      <div className={styles.formSide}>
+    <div className={styles.page}>
+      <div className={styles.authWrap}>
         <div className={styles.card}>
-          <div className={styles.wordmark}>Field Log</div>
-          <p className={styles.subtitle}>Log in to your study record.</p>
+          <div className={styles.cardTop}>
+            <div className={styles.wordmark}>
+              <span className={styles.wordmarkIcon}>◈</span>
+              Field Log<span className={styles.dot}>.</span>
+            </div>
+            <div className={styles.topLink}>
+              No account? <Link href="/register">Sign up</Link>
+            </div>
+          </div>
+
+          <h1 className={styles.heading}>Sign in</h1>
 
           <form onSubmit={handleSubmit}>
             <div className={styles.field}>
@@ -48,7 +52,10 @@ export default function LoginPage() {
               <input type="email" name="email" value={form.email} onChange={handleChange} required />
             </div>
             <div className={styles.field}>
-              <label>Password</label>
+              <div className={styles.labelRow}>
+                <label>Password</label>
+                <Link href="/forgot-password" className={styles.inlineLink}>Forgot password?</Link>
+              </div>
               <input type="password" name="password" value={form.password} onChange={handleChange} required />
             </div>
 
@@ -59,11 +66,12 @@ export default function LoginPage() {
               </p>
             )}
 
-            <button type="submit" className={styles.submitButton}>Log in</button>
+            <button type="submit" className={styles.submitButton}>Sign in</button>
           </form>
+        </div>
 
-          <div className={styles.switchLink}>No account? <Link href="/register">Register</Link></div>
-          <div className={styles.switchLink}><Link href="/forgot-password">Forgot password?</Link></div>
+        <div className={styles.illustration}>
+          <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
         </div>
       </div>
     </div>

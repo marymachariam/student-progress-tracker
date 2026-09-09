@@ -26,16 +26,20 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className={styles.split}>
-      <div className={styles.imageSide}>
-        <Image src="/image.png" alt="" fill priority className={styles.image} />
-        <div className={styles.imageOverlay} />
-      </div>
-
-      <div className={styles.formSide}>
+    <div className={styles.page}>
+      <div className={styles.authWrap}>
         <div className={styles.card}>
-          <div className={styles.wordmark}>Field Log</div>
-          <p className={styles.subtitle}>Start your study record.</p>
+          <div className={styles.cardTop}>
+            <div className={styles.wordmark}>
+              <span className={styles.wordmarkIcon}>◈</span>
+              Field Log<span className={styles.dot}>.</span>
+            </div>
+            <div className={styles.topLink}>
+              Have an account? <Link href="/login">Sign in</Link>
+            </div>
+          </div>
+
+          <h1 className={styles.heading}>Create account</h1>
 
           <form onSubmit={handleSubmit}>
             <div className={styles.field}>
@@ -55,8 +59,10 @@ export default function RegisterPage() {
             {error && <p className={styles.errorText}>{error}</p>}
             <button type="submit" className={styles.submitButton}>Create account</button>
           </form>
+        </div>
 
-          <div className={styles.switchLink}>Already have an account? <Link href="/login">Log in</Link></div>
+        <div className={styles.illustration}>
+          <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
         </div>
       </div>
     </div>

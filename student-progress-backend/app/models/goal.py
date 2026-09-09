@@ -14,7 +14,8 @@ class Goal(Base):
         ForeignKey("students.student_id", ondelete="CASCADE"), nullable=False, index=True
     )
     title: Mapped[str] = mapped_column(String(200), nullable=False)
-    target_type: Mapped[str] = mapped_column(String(50), nullable=False)  # e.g. "hours"
+    current_value: Mapped[float | None] = mapped_column(Float, nullable=True, default=None)
+    target_type: Mapped[str] = mapped_column(String(50), nullable=False)  
     target_value: Mapped[float] = mapped_column(Float, nullable=False)
     start_date: Mapped[date] = mapped_column(Date, nullable=False)
     end_date: Mapped[date] = mapped_column(Date, nullable=False)

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { getStudent, logout } from "../../lib/auth";
+import { getStudent, logout, updateStoredStudent } from "../../lib/auth";
+import { api } from "../../lib/api";
 import styles from "./Navbar.module.css";
 
 const LINKS = [
@@ -13,24 +15,46 @@ const LINKS = [
   { href: "/study-sessions", label: "Study sessions", icon: "◷" },
   { href: "/quiz-scores", label: "Quiz scores", icon: "✓" },
   { href: "/goals", label: "Goals", icon: "◆" },
+  { href: "/recommendations", label: "AI recommendations", icon: "✦" },
 ];
 
 const HIDDEN_ON = ["/", "/login", "/register"];
 
 function initials(name) {
   if (!name) return "?";
-  return name
-    .split(" ")
-    .map((part) => part[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+  return name.split(" ").map((part) => part[0]).slice(0, 2).join("").toUpperCase();
+}
+
+function Avatar({ student, size = 44, onClick, uploading }) {
+  return (
+    <div
+      className={styles.avatarWrap}
+      style={{ width: size, height: size, cursor: onClick ? "pointer" : "default" }}
+      onClick={onClick}
+      title={onClick ? "Change profile picture" : undefined}
+    >
+      {student?.profile_picture_url ? (
+        <Image
+          src={student.profile_picture_url}
+          alt={student.name || "Profile"}
+          fill
+          className={styles.avatarImg}
+        />
+      ) : (
+        <div className={styles.avatar}>{initials(student?.name)}</div>
+      )}
+      {onClick && <div className={styles.avatarOverlay}>{uploading ? "…" : "✎"}</div>}
+    </div>
+  );
 }
 
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const [student, setStudent] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     setStudent(getStudent());
@@ -45,6 +69,28 @@ export default function Navbar() {
     router.push("/");
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError("");
+    setUploading(true);
+    try {
+      const updatedStudent = await api.uploadProfilePicture(file);
+      const merged = updateStoredStudent({ profile_picture_url: updatedStudent.profile_picture_url });
+      setStudent(merged);
+    } catch (err) {
+      setUploadError(err.message);
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
   return (
     <>
       <nav className={styles.sidebar}>
@@ -52,6 +98,23 @@ export default function Navbar() {
           <div className={styles.wordmark}>Field Log</div>
           <div className={styles.tagline}>Study record</div>
         </div>
+
+        <div className={styles.profileCard}>
+          <Avatar student={student} size={48} onClick={handleAvatarClick} uploading={uploading} />
+          <div className={styles.userMeta}>
+            <span className={styles.userName}>{student?.name || "Guest"}</span>
+            <span className={styles.userEmail}>{student?.email || ""}</span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            onChange={handleFileChange}
+            className={styles.hiddenInput}
+            style={{ display: "none" }}
+          />
+        </div>
+        {uploadError && <p className={styles.uploadError}>{uploadError}</p>}
 
         <ul className={styles.navList}>
           {LINKS.map((link, i) => {
@@ -69,26 +132,18 @@ export default function Navbar() {
               </li>
             );
           })}
+          <li>
+            <button className={styles.logoutRow} onClick={handleLogout}>
+              <span className={styles.navIcon}>⏻</span>
+              <span className={styles.navLabel}>Log out</span>
+            </button>
+          </li>
         </ul>
-
-        <div className={styles.userSection}>
-          <div className={styles.userInfo}>
-            <div className={styles.avatar}>{initials(student?.name)}</div>
-            <div className={styles.userMeta}>
-              <span className={styles.userName}>{student?.name || "Guest"}</span>
-              <span className={styles.userEmail}>{student?.email || ""}</span>
-            </div>
-          </div>
-          <button className={styles.logoutButton} onClick={handleLogout} aria-label="Log out">
-            <span className={styles.logoutIcon}>⏻</span>
-            Log out
-          </button>
-        </div>
       </nav>
 
       <div className={styles.mobileTopBar}>
         <div className={styles.mobileUserInfo}>
-          <div className={styles.avatar}>{initials(student?.name)}</div>
+          <Avatar student={student} size={32} onClick={handleAvatarClick} uploading={uploading} />
           <span className={styles.userName}>{student?.name || "Guest"}</span>
         </div>
         <button className={styles.mobileLogoutButton} onClick={handleLogout} aria-label="Log out">
@@ -97,7 +152,7 @@ export default function Navbar() {
       </div>
 
       <nav className={styles.mobileTabBar}>
-        {LINKS.map((link) => {
+        {LINKS.slice(0, 5).map((link) => {
           const isActive = pathname?.startsWith(link.href);
           return (
             <Link

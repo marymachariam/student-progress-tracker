@@ -35,14 +35,25 @@ def get_weakest_topic(db, student_id: int) -> dict | None:
     return {"topic": topic, "average_score_percent": round(score * 100, 1)}
 
 
+def _get_goal_actual(db, student_id: int, goal) -> float:
+    if goal.current_value is not None:
+        return goal.current_value
+    if goal.target_type == "hours":
+        return repo.get_hours_since(db, student_id, goal.start_date, goal.end_date)
+    elif goal.target_type == "sessions":
+        return repo.get_sessions_count(db, student_id, goal.start_date, goal.end_date)
+    elif goal.target_type == "topics":
+        return repo.get_topics_count(db, student_id, goal.start_date, goal.end_date)
+    elif goal.target_type == "quizzes":
+        return repo.get_quizzes_count(db, student_id, goal.start_date, goal.end_date)
+    return 0
+
+
 def get_goal_progress(db, student_id: int) -> list[dict]:
     goals = repo.get_active_goals(db, student_id)
     result = []
     for goal in goals:
-        if goal.target_type == "hours":
-            actual = repo.get_hours_since(db, student_id, goal.start_date)
-        else:
-            actual = 0
+        actual = _get_goal_actual(db, student_id, goal)
         percent = (actual / goal.target_value * 100) if goal.target_value else 0
         result.append({
             "goal_id": goal.goal_id,
@@ -70,7 +81,7 @@ def get_goal_prediction(db, student_id: int, goal_id: int) -> dict | None:
     if not goal:
         return None
 
-    actual_so_far = repo.get_hours_since(db, student_id, goal.start_date)
+    actual_so_far = _get_goal_actual(db, student_id, goal)
 
     today = datetime.date.today()
     days_elapsed = max((today - goal.start_date).days, 1)
@@ -87,18 +98,15 @@ def get_goal_prediction(db, student_id: int, goal_id: int) -> dict | None:
         "on_track": predicted_total >= goal.target_value,
     }
 
-
 def get_alerts(db, student_id: int) -> list[dict]:
     alerts = []
     today = datetime.date.today()
 
     for goal in repo.get_active_goals(db, student_id):
-        if goal.target_type != "hours":
-            continue
         days_elapsed = max((today - goal.start_date).days, 1)
         days_total = max((goal.end_date - goal.start_date).days, 1)
         expected_progress = goal.target_value * (days_elapsed / days_total)
-        actual = repo.get_hours_since(db, student_id, goal.start_date)
+        actual = _get_goal_actual(db, student_id, goal)
 
         if actual < expected_progress:
             alerts.append({

@@ -2,14 +2,14 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: var(--space-5);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
   gap: var(--space-3);
 }
 
 .eyebrow {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   color: var(--moss);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -17,23 +17,34 @@
   margin-bottom: var(--space-1);
 }
 
+.header h1 {
+  font-size: 2.25rem;
+}
+
 .addButton {
   background: var(--moss);
   color: var(--surface);
   border: none;
   border-radius: var(--radius-sm);
-  padding: var(--space-2) var(--space-4);
-  font-size: 0.85rem;
+  padding: 0.75rem var(--space-4);
+  font-size: 0.95rem;
   font-weight: 600;
   transition: background 0.15s ease;
+  min-height: 44px;
 }
 
 .addButton:hover { background: var(--moss-deep); }
 
+.statusMessage {
+  font-size: 0.9rem;
+  margin-bottom: var(--space-3);
+  color: var(--ink-soft);
+}
+
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--space-4);
 }
 
 .specimenCard {
@@ -47,20 +58,113 @@
 
 .specimenCard:hover { border-color: var(--moss); transform: translateY(-2px); }
 
-.colorTag { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-bottom: var(--space-2); }
+.favoriteButton {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--amber);
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+
+.colorTag {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-bottom: var(--space-2);
+}
 
 .subjectName {
   font-family: var(--font-display);
-  font-size: 1.15rem;
+  font-size: 1.4rem;
   font-weight: 600;
   color: var(--ink);
   margin-bottom: var(--space-1);
+  padding-right: var(--space-4);
 }
 
-.subjectMeta { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+.subjectMeta {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-3);
+}
 
-.emptyState { text-align: center; padding: var(--space-6) var(--space-3); color: var(--ink-soft); }
-.emptyState h3 { margin-bottom: var(--space-2); }
+.cardActions {
+  display: flex;
+  gap: var(--space-2);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-3);
+}
 
-.formRow { display: flex; gap: var(--space-2); margin-bottom: var(--space-4); flex-wrap: wrap; }
-.formRow input { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: var(--space-2); font-size: 0.9rem; }
+.actionButton {
+  flex: 1;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.actionButton:hover { background: var(--clay-soft); }
+
+.deleteButton {
+  color: var(--clay);
+  border-color: var(--clay);
+}
+
+.deleteButton:hover { background: var(--clay-soft); }
+
+.emptyState {
+  text-align: center;
+  padding: var(--space-6) var(--space-3);
+  color: var(--ink-soft);
+}
+
+.emptyState h3 { margin-bottom: var(--space-2); font-size: 1.3rem; }
+
+.formRow {
+  display: flex;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.formRow input[type="text"] {
+  flex: 1;
+  min-width: 180px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.7rem var(--space-3);
+  font-size: 1rem;
+}
+
+.formRow input[type="color"] {
+  width: 48px;
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 2px;
+}
+
+@media (max-width: 640px) {
+  .header h1 { font-size: 1.8rem; }
+  .grid { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: stretch; }
+  .addButton { width: 100%; }
+  .formRow { flex-direction: column; }
+  .formRow input[type="color"] { width: 100%; }
+}

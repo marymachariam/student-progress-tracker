@@ -1,53 +1,68 @@
-.split {
+.page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.imageSide {
-  position: relative;
-  width: 100%;
-  height: 160px;
-  flex-shrink: 0;
-}
-
-/* FIXED: Added width and height so the image stretches to fill the container entirely */
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.imageOverlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, rgba(22, 36, 27, 0.1), rgba(22, 36, 27, 0.45));
-}
-
-.formSide {
-  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: var(--space-4);
 }
 
-.card {
+.authWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-5);
+  max-width: 1500px;
   width: 100%;
-  max-width: 380px;
+}
+
+.card {
+  background: var(--surface);
+  border-radius: 20px;
+  box-shadow: 0 20px 50px -12px rgba(22, 36, 27, 0.15);
+  padding: var(--space-5);
+  width: 100%;
+  max-width: 500px;
+  flex-shrink: 0;
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
 }
 
 .wordmark {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-weight: 700;
+  font-size: 1rem;
   color: var(--ink);
 }
 
-.subtitle {
+.wordmarkIcon {
+  color: var(--moss);
+  font-size: 1.1rem;
+}
+
+.dot {
+  color: var(--clay);
+}
+
+.topLink {
+  font-size: 0.8rem;
   color: var(--ink-soft);
+}
+
+.topLink a {
+  color: var(--moss);
+  font-weight: 600;
+}
+
+.heading {
+  font-size: 3rem;
   margin-bottom: var(--space-4);
-  margin-top: var(--space-1);
 }
 
 .field {
@@ -57,18 +72,31 @@
   margin-bottom: var(--space-3);
 }
 
+.labelRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
 .field label {
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink);
 }
 
+.inlineLink {
+  font-size: 0.78rem;
+  color: var(--moss);
+  font-weight: 600;
+}
+
 .field input {
-  padding: 0.75rem var(--space-3);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  padding: 1rem var(--space-3);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
   font-size: 1rem;
   background: var(--surface);
+  transition: border-color 0.15s ease;
 }
 
 .field input:focus {
@@ -89,12 +117,12 @@
 
 .submitButton {
   width: 100%;
-  padding: 0.85rem;
-  min-height: 44px;
-  background: var(--moss);
+  padding: 0.9rem;
+  min-height: 48px;
+  background: var(--ink);
   color: white;
   border: none;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   font-size: 1rem;
   font-weight: 600;
   margin-top: var(--space-2);
@@ -116,17 +144,20 @@
   font-weight: 600;
 }
 
-@media (min-width: 768px) {
-  .split {
-    flex-direction: row;
-  }
+.illustration {
+  display: none;
+}
 
-  .imageSide {
-    height: auto;
-    width: 40%;
-  }
+.illustrationImg {
+  object-fit: contain;
+  width: 100%;
+  height: auto;
+}
 
-  .formSide {
-    width: 60%;
+@media (min-width: 900px) {
+  .illustration {
+    display: block;
+    width: 380px;
+    flex-shrink: 0;
   }
 }

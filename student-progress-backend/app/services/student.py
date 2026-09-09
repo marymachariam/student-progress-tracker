@@ -5,6 +5,11 @@ from app.repositories import student as student_repo
 from app.schemas.student import StudentCreate, StudentLogin, StudentUpdate, Token
 from app.core.security import hash_password, verify_password, create_access_token
 from app.models.student import Student
+from fastapi import HTTPException, status
+from app.core.cloudinary_client import upload_profile_picture
+
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
 
 def register_student(db: Session, payload: StudentCreate) -> Student:
@@ -39,3 +44,17 @@ def update_student(db: Session, student: Student, payload: StudentUpdate) -> Stu
 
 def delete_student(db: Session, student: Student) -> None:
     student_repo.delete_student(db, student)
+
+async def update_profile_picture(db, student, file):
+    if file.content_type not in ALLOWED_CONTENT_TYPES:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Only JPEG, PNG, or WebP images are allowed")
+
+    contents = await file.read()
+    if len(contents) > MAX_UPLOAD_SIZE:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Image must be under 5MB")
+
+    url = upload_profile_picture(contents, student.student_id)
+    student.profile_picture_url = url
+    db.commit()
+    db.refresh(student)
+    return student
