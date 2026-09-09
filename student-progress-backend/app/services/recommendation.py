@@ -1,9 +1,11 @@
+import time
 from app.repositories import analytics as analytics_repo
 from app.core.ai_client import generate_recommendation_text
 
+_cache: dict[int, dict] = {}  
+
 
 def _build_fallback_text(context: dict) -> str:
-    """Plain templated sentence — used if the LLM call fails or isn't reachable."""
     topic = context.get("weakest_topic")
     if topic:
         return (
@@ -25,11 +27,21 @@ async def get_recommendation(db, student_id: int) -> dict:
 
     weakest_topic = get_weakest_topic(db, student_id)
     alerts = get_alerts(db, student_id)
-
     context = {"weakest_topic": weakest_topic, "alerts": alerts}
 
     ai_text = await generate_recommendation_text(context)
+
     if ai_text:
+        _cache[student_id] = {"text": ai_text, "generated_at": time.time()}
         return {"recommendation": ai_text, "source": "ai", "based_on": context}
+
+    cached = _cache.get(student_id)
+    if cached:
+        return {
+            "recommendation": cached["text"],
+            "source": "cached",
+            "based_on": context,
+            "cached_at": cached["generated_at"],
+        }
 
     return {"recommendation": _build_fallback_text(context), "source": "fallback", "based_on": context}

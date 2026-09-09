@@ -18,7 +18,7 @@ const LINKS = [
   { href: "/recommendations", label: "AI recommendations", icon: "✦" },
 ];
 
-const HIDDEN_ON = ["/", "/login", "/register"];
+const HIDDEN_ON = ["/", "/login", "/register", "/forgot-password", "/reset-password", "/verify-otp"];
 
 function initials(name) {
   if (!name) return "?";

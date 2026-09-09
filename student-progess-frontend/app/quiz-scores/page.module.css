@@ -26,6 +26,11 @@
   padding: var(--space-3);
   margin-bottom: var(--space-4);
 }
+.formGrid select:disabled {
+  background: var(--paper-alt);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
 
 .formGrid select {
   border: 1px solid var(--border);

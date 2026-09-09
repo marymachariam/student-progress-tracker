@@ -16,6 +16,8 @@ from app.routers import (
 from app.core.scheduler import start_scheduler, stop_scheduler
 import app.models
 
+from app.routers import admin
+
 from app.routers import (
     auth, student, subject, topic, study_session,
     quiz_score, goal, analytics, health,
@@ -49,6 +51,7 @@ app.include_router(goal.router)
 app.include_router(analytics.router)
 app.include_router(health.router)
 app.include_router(recommendation.router)
+app.include_router(admin.router)
 
 
 @app.on_event("startup")

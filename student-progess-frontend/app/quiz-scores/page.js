@@ -32,13 +32,22 @@ export default function QuizScoresPage() {
   }, [router]);
 
   const loadScores = () => {
-    api.getQuizScores().then((data) => setScores(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getQuizScores()
+      .then((data) => setScores(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
   const loadSubjects = () => {
-    api.getSubjects().then((data) => setSubjects(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getSubjects()
+      .then((data) => setSubjects(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
   const loadTopics = () => {
-    api.getTopics().then((data) => setTopics(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getTopics()
+      .then((data) => setTopics(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
@@ -49,8 +58,10 @@ export default function QuizScoresPage() {
     }
   }, [student]);
 
-  const topicName = (id) => topics.find((t) => t.topic_id === id)?.name || "Unknown";
-  const subjectName = (id) => subjects.find((s) => s.subject_id === id)?.name || "Unknown";
+  const topicName = (id) =>
+    topics.find((t) => t.topic_id === id)?.name || "Unknown";
+  const subjectName = (id) =>
+    subjects.find((s) => s.subject_id === id)?.name || "Unknown";
 
   const scoreClass = (score, total) => {
     const pct = (score / total) * 100;
@@ -59,10 +70,17 @@ export default function QuizScoresPage() {
     return styles.scoreLow;
   };
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const resetForm = () => {
-    setForm({ subject_id: "", topic_id: "", score: "", total_marks: "", quiz_date: "" });
+    setForm({
+      subject_id: "",
+      topic_id: "",
+      score: "",
+      total_marks: "",
+      quiz_date: "",
+    });
     setEditingId(null);
   };
 
@@ -125,19 +143,36 @@ export default function QuizScoresPage() {
       </div>
 
       <form onSubmit={handleSubmit} className={styles.formGrid}>
-        <select name="subject_id" value={form.subject_id} onChange={handleChange} required>
+        <select
+          name="subject_id"
+          value={form.subject_id}
+          onChange={handleChange}
+          required
+        >
           <option value="">Select subject</option>
           {subjects.map((s) => (
-            <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
+            <option key={s.subject_id} value={s.subject_id}>
+              {s.name}
+            </option>
           ))}
         </select>
 
-        <select name="topic_id" value={form.topic_id} onChange={handleChange} required>
-          <option value="">Select topic</option>
+        <select
+          name="topic_id"
+          value={form.topic_id}
+          onChange={handleChange}
+          required
+          disabled={!form.subject_id}
+        >
+          <option value="">
+            {form.subject_id ? "Select topic" : "Select a subject first"}
+          </option>
           {topics
             .filter((t) => String(t.subject_id) === String(form.subject_id))
             .map((t) => (
-              <option key={t.topic_id} value={t.topic_id}>{t.name}</option>
+              <option key={t.topic_id} value={t.topic_id}>
+                {t.name}
+              </option>
             ))}
         </select>
 
@@ -169,7 +204,11 @@ export default function QuizScoresPage() {
           {editingId ? "Update" : "Add score"}
         </button>
         {editingId && (
-          <button type="button" className={styles.cancelButton} onClick={resetForm}>
+          <button
+            type="button"
+            className={styles.cancelButton}
+            onClick={resetForm}
+          >
             Cancel
           </button>
         )}
@@ -188,17 +227,28 @@ export default function QuizScoresPage() {
             <div key={q.score_id} className={styles.scoreCard}>
               <div className={styles.scoreMain}>
                 <div>
-                  <div className={styles.scoreTopic}>{topicName(q.topic_id)}</div>
-                  <div className={styles.scoreSubject}>{subjectName(q.subject_id)}</div>
+                  <div className={styles.scoreTopic}>
+                    {topicName(q.topic_id)}
+                  </div>
+                  <div className={styles.scoreSubject}>
+                    {subjectName(q.subject_id)}
+                  </div>
                 </div>
-                <div className={`${styles.scoreValue} ${scoreClass(q.score, q.total_marks)}`}>
+                <div
+                  className={`${styles.scoreValue} ${scoreClass(q.score, q.total_marks)}`}
+                >
                   {q.score}/{q.total_marks}
                 </div>
               </div>
               <div className={styles.scoreFooter}>
                 <span className={styles.scoreDate}>{q.quiz_date}</span>
                 <div className={styles.scoreActions}>
-                  <button className={styles.actionButton} onClick={() => handleEdit(q)}>Edit</button>
+                  <button
+                    className={styles.actionButton}
+                    onClick={() => handleEdit(q)}
+                  >
+                    Edit
+                  </button>
                   <button
                     className={`${styles.actionButton} ${styles.deleteButton}`}
                     onClick={() => handleDelete(q.score_id)}

@@ -32,13 +32,22 @@ export default function StudySessionsPage() {
   }, [router]);
 
   const loadSessions = () => {
-    api.getStudySessions().then((data) => setSessions(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getStudySessions()
+      .then((data) => setSessions(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
   const loadSubjects = () => {
-    api.getSubjects().then((data) => setSubjects(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getSubjects()
+      .then((data) => setSubjects(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
   const loadTopics = () => {
-    api.getTopics().then((data) => setTopics(data || [])).catch((err) => setStatusMessage(err.message));
+    api
+      .getTopics()
+      .then((data) => setTopics(data || []))
+      .catch((err) => setStatusMessage(err.message));
   };
 
   useEffect(() => {
@@ -49,12 +58,20 @@ export default function StudySessionsPage() {
     }
   }, [student]);
 
-  const subjectName = (id) => subjects.find((s) => s.subject_id === id)?.name || "Unknown";
+  const subjectName = (id) =>
+    subjects.find((s) => s.subject_id === id)?.name || "Unknown";
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const resetForm = () => {
-    setForm({ subject_id: "", topic_id: "", study_date: "", hours: "", notes: "" });
+    setForm({
+      subject_id: "",
+      topic_id: "",
+      study_date: "",
+      hours: "",
+      notes: "",
+    });
     setEditingId(null);
   };
 
@@ -116,39 +133,74 @@ export default function StudySessionsPage() {
         <form onSubmit={handleSubmit}>
           <div className={styles.field}>
             <label>Subject</label>
-            <select name="subject_id" value={form.subject_id} onChange={handleChange} required>
+            <select
+              name="subject_id"
+              value={form.subject_id}
+              onChange={handleChange}
+              required
+            >
               <option value="">Select subject</option>
               {subjects.map((s) => (
-                <option key={s.subject_id} value={s.subject_id}>{s.name}</option>
+                <option key={s.subject_id} value={s.subject_id}>
+                  {s.name}
+                </option>
               ))}
             </select>
           </div>
 
           <div className={styles.field}>
             <label>Topic</label>
-            <select name="topic_id" value={form.topic_id} onChange={handleChange} required>
-              <option value="">Select topic</option>
+            <select
+              name="topic_id"
+              value={form.topic_id}
+              onChange={handleChange}
+              required
+              disabled={!form.subject_id}
+            >
+              <option value="">
+                {form.subject_id ? "Select topic" : "Select a subject first"}
+              </option>
               {topics
                 .filter((t) => String(t.subject_id) === String(form.subject_id))
                 .map((t) => (
-                  <option key={t.topic_id} value={t.topic_id}>{t.name}</option>
+                  <option key={t.topic_id} value={t.topic_id}>
+                    {t.name}
+                  </option>
                 ))}
             </select>
           </div>
 
           <div className={styles.field}>
             <label>Date</label>
-            <input type="date" name="study_date" value={form.study_date} onChange={handleChange} required />
+            <input
+              type="date"
+              name="study_date"
+              value={form.study_date}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className={styles.field}>
             <label>Hours</label>
-            <input type="number" step="0.1" name="hours" value={form.hours} onChange={handleChange} required />
+            <input
+              type="number"
+              step="0.1"
+              name="hours"
+              value={form.hours}
+              onChange={handleChange}
+              required
+            />
           </div>
 
           <div className={styles.field}>
             <label>Notes</label>
-            <textarea name="notes" value={form.notes} onChange={handleChange} rows={3} />
+            <textarea
+              name="notes"
+              value={form.notes}
+              onChange={handleChange}
+              rows={3}
+            />
           </div>
 
           <div className={styles.formButtons}>
@@ -156,14 +208,20 @@ export default function StudySessionsPage() {
               {editingId ? "Update session" : "Save session"}
             </button>
             {editingId && (
-              <button type="button" className={styles.cancelButton} onClick={resetForm}>
+              <button
+                type="button"
+                className={styles.cancelButton}
+                onClick={resetForm}
+              >
                 Cancel
               </button>
             )}
           </div>
         </form>
 
-        {statusMessage && <p className={styles.statusMessage}>{statusMessage}</p>}
+        {statusMessage && (
+          <p className={styles.statusMessage}>{statusMessage}</p>
+        )}
       </div>
 
       <div className={styles.logSection}>
@@ -177,7 +235,12 @@ export default function StudySessionsPage() {
                 <div className={styles.logHeader}>
                   <span className={styles.logDate}>{s.study_date}</span>
                   <div className={styles.logActions}>
-                    <button className={styles.actionButton} onClick={() => handleEdit(s)}>Edit</button>
+                    <button
+                      className={styles.actionButton}
+                      onClick={() => handleEdit(s)}
+                    >
+                      Edit
+                    </button>
                     <button
                       className={`${styles.actionButton} ${styles.deleteButton}`}
                       onClick={() => handleDelete(s.session_id)}
@@ -187,7 +250,9 @@ export default function StudySessionsPage() {
                   </div>
                 </div>
                 <div className={styles.logBody}>
-                  <span className={styles.logSubject}>{subjectName(s.subject_id)}</span>
+                  <span className={styles.logSubject}>
+                    {subjectName(s.subject_id)}
+                  </span>
                   {" — "}
                   <span className={styles.logHours}>{s.hours}h</span>
                 </div>

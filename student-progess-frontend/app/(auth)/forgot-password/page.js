@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { api } from "../../../lib/api";
 import styles from "../login/page.module.css";
 
@@ -23,30 +24,42 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <div className={styles.wordmark}>Field Log</div>
-        <p className={styles.subtitle}>We&apos;ll email you a reset link.</p>
-
-        <form onSubmit={handleSubmit}>
-          <div className={styles.field}>
-            <label>Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+    <div className={styles.page}>
+      <div className={styles.authWrap}>
+        <div className={styles.card}>
+          <div className={styles.cardTop}>
+            <div className={styles.wordmark}>
+              <span className={styles.wordmarkIcon}>◈</span>
+              Field Log<span className={styles.dot}>.</span>
+            </div>
+            <div className={styles.topLink}>
+              Remembered it? <Link href="/login">Sign in</Link>
+            </div>
           </div>
 
-          {error && <p className={styles.errorText}>{error}</p>}
-          {message && <p className={styles.subtitle}>{message}</p>}
+          <h1 className={styles.heading}>Reset password</h1>
+          <p className={styles.subtitle}>We&apos;ll email you a reset link.</p>
 
-          <button type="submit" className={styles.submitButton}>Send reset link</button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            <div className={styles.field}>
+              <label>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-        <div className={styles.switchLink}>
-          <Link href="/login">Back to login</Link>
+            {error && <p className={styles.errorText}>{error}</p>}
+            {message && <p className={styles.switchLink}>{message}</p>}
+
+            <button type="submit" className={styles.submitButton}>Send reset link</button>
+          </form>
+        </div>
+
+        <div className={styles.illustration}>
+          <Image src="/image.png" alt="" width={420} height={420} priority className={styles.illustrationImg} />
         </div>
       </div>
     </div>

@@ -12,17 +12,30 @@ async function request(endpoint, options = {}) {
     ...options.headers,
   };
 
-  const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  let res;
+  try {
+    res = await fetch(`${API_URL}${endpoint}`, { ...options, headers });
+  } catch {
+    throw new Error("Can't reach the server. Check your connection and try again.");
+  }
 
   if (res.status === 401) {
     logout();
     if (typeof window !== "undefined") window.location.href = "/login";
-    throw new Error("Session expired");
+    throw new Error("Your session has expired. Please log in again.");
+  }
+
+  if (res.status === 429) {
+    throw new Error("Too many attempts. Please wait a minute before trying again.");
+  }
+
+  if (res.status === 500) {
+    throw new Error("Something went wrong on our end. Please try again shortly.");
   }
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.detail || `API error: ${res.status}`);
+    throw new Error(body.detail || "Something went wrong. Please try again.");
   }
 
   if (res.status === 204) return null;
@@ -82,9 +95,9 @@ export const api = {
   getGoals: () => request("/goals"),
   createGoal: (data) =>
     request("/goals", { method: "POST", body: JSON.stringify(data) }),
-    updateGoal: (id, data) =>
+  updateGoal: (id, data) =>
     request(`/goals/${id}`, { method: "PUT", body: JSON.stringify(data) }),
-    deleteGoal: (id) => request(`/goals/${id}`, { method: "DELETE" }),
+  deleteGoal: (id) => request(`/goals/${id}`, { method: "DELETE" }),
 
   updateStudySession: (id, data) =>
     request(`/study-sessions/${id}`, {

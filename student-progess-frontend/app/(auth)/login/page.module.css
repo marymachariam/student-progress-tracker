@@ -154,6 +154,13 @@
   height: auto;
 }
 
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  margin-bottom: var(--space-4);
+  margin-top: -var(--space-2);
+}
+
 @media (min-width: 900px) {
   .illustration {
     display: block;

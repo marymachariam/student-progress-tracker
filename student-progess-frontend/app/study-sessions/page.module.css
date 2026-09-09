@@ -45,6 +45,11 @@
   display: flex;
   gap: var(--space-2);
 }
+.field select:disabled {
+  background: var(--paper-alt);
+  color: var(--ink-soft);
+  cursor: not-allowed;
+}
 
 .submitButton {
   flex: 1;
