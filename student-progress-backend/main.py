@@ -40,7 +40,12 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.BACKEND_CORS_ORIGINS,
+    allow_origins=[
+        "http://localhost:3000",
+        "https://student-progress-tracker-umber.vercel.app",
+        "https://student-progress-tracker-git-main-marymacharia.vercel.app",
+        "https://student-progress-tracker-46fjr6w7p-marymacharia.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -60,15 +65,6 @@ app.include_router(recommendation.router)
 app.include_router(admin.router)
 
 
-@app.on_event("startup")
-def on_startup():
-    logger.info("Application startup complete.")
-    start_scheduler()
-
-
-@app.on_event("shutdown")
-def on_shutdown():
-    stop_scheduler()
 
 
 @app.get("/")
