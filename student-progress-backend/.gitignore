@@ -1,0 +1,50 @@
+# Environments
+env/
+venv/
+.venv/
+*.env
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Alembic (keep migration scripts, ignore generated cache if any)
+# alembic/versions/  <- do NOT ignore this, you want migrations in git
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Local DB files (if you ever use SQLite for quick tests)
+*.sqlite3
+*.db
